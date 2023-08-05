@@ -1,0 +1,56 @@
+header {
+  @include flex_separation;
+  height: 96px;
+  background-color: $dark-grey;
+  border-bottom: solid 2px $line_dark;
+  width: 100%;
+  // position: fixed;
+  h1 {
+    @include heading_xl;
+    color: $white;
+    margin: 0px 20px;
+  }
+}
+
+.header_btnSection {
+  display: flex;
+  position: sticky;
+  right: 0px;
+}
+
+.header_taskAdder {
+  @include heading_m;
+  background-color: $main_purple;
+  color: $white;
+
+  width: 164px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 25px;
+}
+
+.header_option_btn {
+  @include flex_midle;
+  width: 50px;
+}
+
+.optin_btn_windows {
+  position: absolute;
+  bottom: -130px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  
+  border-radius: 8px;
+  max-width: 192px;
+  width: 100%;
+  background-color: $very_dark_grey;
+  box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
+-webkit-box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
+-moz-box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
+  button {
+    padding: 10px 20px;
+    text-align: left;
+  }
+}

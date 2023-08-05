@@ -1,0 +1,78 @@
+aside {
+  max-width: 300px;
+  width: 100%;
+  // position: fixed;
+  // height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  h2 {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 2.4px;
+    color: $medium_grey;
+    margin-left: 30px;
+  }
+}
+.sidebar_logo {
+  max-height: 96px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  background-color: $dark-grey;
+  border-right: solid 2px $line_dark;
+  border-bottom: solid 2px $line_dark;
+}
+.sidebar_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  background-color: $dark-grey;
+  border-right: solid 2px $line_dark;
+}
+
+.sidebar_menu {
+  padding: 0;
+
+  button {
+    @include heading_m;
+    width: 87%;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+    border-radius: 0 100px 100px 0;
+    border: none;
+    p {
+      margin-left: 15px;
+    }
+  }
+  .sidebar_kanbanLink {
+    background: transparent;
+    color: $medium_grey;
+  }
+  .sidebar_kanbanLink_active {
+    background-color: $main_purple;
+    color: $white;
+  }
+  .sidebar_boardCreator_btn {
+    background: none;
+    color: $main_purple;
+  }
+}
+
+.sideBar_hide_btn {
+  @include heading_m;
+  color: $medium_grey;
+  display: flex;
+  align-items: center;
+  margin-left: 30px;
+  margin-bottom: 30px;
+  span {
+    margin-right: 10px;
+  }
+}

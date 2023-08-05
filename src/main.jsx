@@ -1,10 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { store } from "./store";
+import { Provider } from "react-redux";
 import Kanban from "./pages/Kanban.jsx";
-import './index.css'
+import "./stylesheets/main.scss";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <Kanban />
-  </React.StrictMode>
+  <>
+    <Provider store={store}>
+      {/* <React.StrictMode> */}
+        <Kanban />
+      {/* </React.StrictMode> */}
+    </Provider>
+  </>
 );

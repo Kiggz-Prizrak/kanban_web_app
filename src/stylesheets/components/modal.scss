@@ -1,0 +1,91 @@
+.modal_background {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: #000000be;
+  @include flex_midle;
+}
+
+.modal_container {
+  background-color: $dark-grey;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.modal_form {
+  margin: 32px;
+  h2 {
+    @include heading_l;
+    color: $white;
+  }
+}
+.modal_content {
+  margin: 32px;
+ p {
+  @include body_l;
+  color: $medium_grey;
+ };
+}
+
+
+.form_title {
+  @include flex_separation;
+  margin: 12px 0;
+}
+
+.form_input_text {
+  background: none;
+  border-radius: 4px;
+  border: solid 1px $line_dark;
+  height: 40px;
+  width: 100%;
+  text-indent: 10px;
+  margin: 12px 0;
+  color: $white;
+  @include body_l;
+}
+
+.form_dropdown_list {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  li {
+    width: 100%;
+    @include flex_midle;
+  }
+  button {
+    text-align: center;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 23px;
+    border-radius: 20px;
+    height: 40px;
+    width: 85%;
+    margin: 12px 0;
+    background-color: #ffffff;
+    color: #635fc7;
+  }
+}
+
+.sub_element_btn {
+  @include flex_separation;
+  button {
+    padding: 15px;
+  }
+}
+
+
+.madal_delete_title {
+  @include heading_l;
+  color: $red;
+}
+
+.modal_delete_btn_section {
+  button {
+    max-width: 200px;
+  }
+  @include flex_separation
+}

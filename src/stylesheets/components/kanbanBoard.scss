@@ -1,0 +1,27 @@
+
+
+.boardKanban_columnAdder_btn {
+  color: white;
+  max-width: 280px;
+  width: 100%;
+  border-radius: 6px;
+  margin-top: 60px;
+  margin-left: 12px;
+  @include heading_xl;
+  color: $medium_grey;
+  background: linear-gradient(
+    180deg,
+    rgba(43, 44, 55, 0.25) 0%,
+    rgba(43, 44, 55, 0.13) 100%
+  );
+}
+
+.board_unless_column{
+  flex-direction: column;
+  @include flex_midle;
+  width: 100%;
+  h3 {
+    @include heading_l;
+    color: $medium_grey;
+  }
+}

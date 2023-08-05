@@ -1,0 +1,50 @@
+.task_item {
+  background-color: $dark-grey;
+  margin: 20px 0;
+  border-radius: 8px;
+  width: 100%;
+  min-height: 88px;
+  flex-shrink: 0;
+  @include flex_separation;
+
+  button {
+    margin-right: 15px;
+  }
+}
+
+.task_item_text {
+  h4 {
+    @include heading_m;
+    color: $white;
+    margin: 0;
+    margin: 8px 15px;
+  }
+  p {
+    @include body_m;
+    color: $ligh_grey;
+    margin: 0;
+    margin: 8px 15px;
+  }
+}
+
+.task_option {
+  @include flex_separation;
+  margin-right: 10px;
+  border-radius: 7px;
+  button {
+    color: $ligh_grey;
+    font-size: 18px;
+    margin: 10px 6px;
+  }
+  background-color: $very-dark-grey;
+  .task_option_button_closer {
+    transform: rotate(90deg);
+    margin-right: 15px;
+  }
+}
+
+.task_button_title:hover {
+h4 {
+    text-decoration: underline;
+    }
+}

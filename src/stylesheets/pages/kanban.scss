@@ -1,0 +1,11 @@
+#root {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background-color: $very_dark_grey;
+  position: relative;
+}
+
+.kanban_page_container {
+  width: 100%;
+}

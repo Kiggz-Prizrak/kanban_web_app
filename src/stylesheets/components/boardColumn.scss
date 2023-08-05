@@ -1,0 +1,16 @@
+.board_column_container {
+  min-width: 280px;
+  max-width: 350px;
+  width: 100%;
+  margin: 12px;
+  h3 {
+    @include heading_s;
+    color: $medium_grey;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    span {
+      margin-right: 15px;
+    }
+  }
+}

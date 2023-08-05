@@ -1,0 +1,29 @@
+html {
+  background-color: #20212c;
+}
+
+*{
+  list-style: none;
+  text-decoration: none;
+}
+
+body{
+  margin: 0;
+  height: 100vh;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  // display: flex;
+  // justify-content: space-between;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+ul {
+  padding: 0;
+}
