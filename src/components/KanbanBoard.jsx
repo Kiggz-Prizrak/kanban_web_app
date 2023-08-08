@@ -8,6 +8,7 @@ const KanbanBoard = ({
   setNewColumnModalIsOpen,
   selectedKanban,
   setDeleteTaskModalIsOpen,
+  setTaskDetailsModalIsOpen,
 }) => {
   // const [datas, setDatas] = useState(selectedKanban?.columns);
 
@@ -65,6 +66,7 @@ const KanbanBoard = ({
                 <BoardColumn
                   setEditTaskModalIsOpen={setEditTaskModalIsOpen}
                   setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
+                  setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
                   key={e?.id}
                   columnIndex={i}
                   column={e?.name}

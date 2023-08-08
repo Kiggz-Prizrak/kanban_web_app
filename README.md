@@ -16,8 +16,6 @@
 
 ## Installation
 
-1. Clone repository 
-
 ```bash
 git clone https://github.com/votre_nom/nom_du_projet.git
 cd nom_du_projet

@@ -29,7 +29,6 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
     subtasks.forEach((subtask) => {
       if (subtasks.filter((e) => e.name == subtask.name).length > 1) {
         setSubtaskError(true);
-        console.log("oui");
       }
     });
 
@@ -43,8 +42,6 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
 
     if (!subtaskError) {
       dispatch(addNewTask({ selectedKanban, column: status, newTask }));
-      console.log(newTask);
-
       setNewTaskModalIsOpen(false);
     }
   };
@@ -60,7 +57,6 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
         subtasks: [],
       },
     ]);
-    console.log(subtasks);
   };
 
   const deleteSubtask = (columnIndex) => {
@@ -69,6 +65,7 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
     );
   };
 
+  //// add better optimisation later
   const setSubtaskName = (e) => {
     e.preventDefault();
     let newSubtasks = Array.from(subtasks);
@@ -77,12 +74,11 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
         newSubtasks[i] = {
           name: e.target.value,
           id: idGenerator("substask", i),
-          tasks: [],
+          checked: false,
         };
       }
     });
     setSubtasks(newSubtasks);
-    console.log(newSubtasks);
   };
 
   return (

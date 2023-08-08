@@ -8,6 +8,7 @@ import AddBoard from "../components/modal/board/AddBoard";
 import AddColumn from "../components/modal/columns/AddColums";
 import AddTask from "../components/modal/tasks/AddTask";
 import DeleteTask from "../components/modal/Tasks/DeleteTask";
+import TaskDetailsModal from "../components/modal/Tasks/TaskDetailsModal";
 import EditBoard from "../components/modal/board/EditBoard";
 import DeleteBoard from "../components/modal/board/DeleteBoard";
 
@@ -24,6 +25,12 @@ const Kanban = () => {
   const [newTaskModalIsOpen, setNewTaskModalIsOpen] = useState(false);
   const [editTaskModalIsOpen, setEditTaskModalIsOpen] = useState(false);
   const [deleteTaskModalIsOpen, setDeleteTaskModalIsOpen] = useState({
+    columnIndex: "",
+    id: "",
+    selectedKanban,
+    open: false,
+  });
+  const [taskDetailsModalIsOpen, setTaskDetailsModalIsOpen] = useState({
     columnIndex: "",
     id: "",
     selectedKanban,
@@ -58,6 +65,7 @@ const Kanban = () => {
             selectedKanban={selectedKanban}
             setEditTaskModalIsOpen={setEditTaskModalIsOpen}
             setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
+            setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
           />
         ) : (
           ""
@@ -110,6 +118,15 @@ const Kanban = () => {
         <DeleteTask
           setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
           deleteTaskModalIsOpen={deleteTaskModalIsOpen}
+        />
+      ) : (
+        ""
+      )}
+      {taskDetailsModalIsOpen.open ? (
+        <TaskDetailsModal
+          selectedKanban={selectedKanban}
+          taskDatas={taskDetailsModalIsOpen}
+          setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
         />
       ) : (
         ""

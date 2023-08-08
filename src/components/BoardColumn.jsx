@@ -8,6 +8,7 @@ const BoardColumn = ({
   color,
   setEditTaskModalIsOpen,
   setDeleteTaskModalIsOpen,
+  setTaskDetailsModalIsOpen,
   columnIndex,
 }) => {
   return (
@@ -30,6 +31,7 @@ const BoardColumn = ({
                 // key={task.index}
                 setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
                 setEditTaskModalIsOpen={setEditTaskModalIsOpen}
+                setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
                 key={index}
                 task={task}
                 index={index}

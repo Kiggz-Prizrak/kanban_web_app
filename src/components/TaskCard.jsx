@@ -12,6 +12,7 @@ const TaskCard = ({
   columnIndex,
   setEditTaskModalIsOpen,
   setDeleteTaskModalIsOpen,
+  setTaskDetailsModalIsOpen,
 }) => {
   const substasksTotal = task.subtasks.length;
   const substasksCompleted = task.subtasks.filter(
@@ -32,7 +33,17 @@ const TaskCard = ({
           className="task_item"
         >
           <div className="task_item_text">
-            <button className="task_button_title">
+            <button
+              className="task_button_title"
+              onClick={() =>
+                setTaskDetailsModalIsOpen((prevState) => ({
+                  ...prevState,
+                  columnIndex,
+                  id: task.id,
+                  open: true,
+                }))
+              }
+            >
               <h4>{task.title}</h4>
             </button>
             {substasksTotal ? (

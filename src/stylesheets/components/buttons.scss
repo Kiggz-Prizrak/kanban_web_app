@@ -39,26 +39,22 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-
-
-
 }
 
 .form_dropdown_title {
   @include flex_separation;
   width: 100%;
-    h4 {
+  h4 {
     margin: 0 10px;
   }
   button {
-    padding: 12px ;
+    padding: 12px;
   }
 }
 
 .form_dropdown_button_active {
   transform: rotate(180deg);
 }
-
 
 .option_edit_btn {
   @include body_l;
@@ -69,3 +65,5 @@
   @include body_l;
   color: $red;
 }
+
+
