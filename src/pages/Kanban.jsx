@@ -7,9 +7,9 @@ import { useState } from "react";
 import AddBoard from "../components/modal/board/AddBoard";
 import AddColumn from "../components/modal/columns/AddColums";
 import AddTask from "../components/modal/tasks/AddTask";
-import DeleteTask from "../components/modal/Tasks/DeleteTask";
-import TaskDetailsModal from "../components/modal/Tasks/TaskDetailsModal";
+import DeleteTask from "../components/modal/tasks/DeleteTask";
 import EditBoard from "../components/modal/board/EditBoard";
+import TaskDetailsModal from "../components/modal/Tasks/TaskDetailsModal";
 import DeleteBoard from "../components/modal/board/DeleteBoard";
 
 // import datas from "/public/mock/data";
@@ -39,8 +39,8 @@ const Kanban = () => {
 
   const kanbansList = useSelector((state) => state.kanbans);
 
-  console.log(kanbansList[selectedKanban]);
-  console.log(editTaskModalIsOpen);
+  // console.log(kanbansList[selectedKanban]);
+  // console.log(editTaskModalIsOpen);
 
   return (
     <>

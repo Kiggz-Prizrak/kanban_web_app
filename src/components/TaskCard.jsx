@@ -23,7 +23,7 @@ const TaskCard = ({
   const [OptionIsOpen, setOptionIsOpen] = useState(false);
 
   return (
-    <Draggable draggableId={task.title} index={index}>
+    <Draggable draggableId={task.id} index={index}>
       {(provided) => (
         <div
           key={`task-${index}`}

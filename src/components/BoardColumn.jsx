@@ -10,6 +10,7 @@ const BoardColumn = ({
   setDeleteTaskModalIsOpen,
   setTaskDetailsModalIsOpen,
   columnIndex,
+  columnId,
 }) => {
   return (
     <div className="board_column_container">
@@ -19,7 +20,7 @@ const BoardColumn = ({
         </span>
         {column}
       </h3>
-      <Droppable droppableId={column}>
+      <Droppable droppableId={columnId}>
         {(provider) => (
           <div
             {...provider.droppableProps}

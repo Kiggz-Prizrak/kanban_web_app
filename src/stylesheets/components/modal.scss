@@ -96,21 +96,29 @@
 }
 
 .checkbox_field_container {
+  display: flex;
+  align-items: center;
+  margin: 15px 0px;
   background-color: $very-dark-grey;
   border-radius: 4px;
-  
+  min-height: 40px;
+
+  input {
+    margin: 0 10px;
+    accent-color: $main_purple;
+  }
   .substaskNameChecked {
-    color: red;
+    color: $white;
     font-size: 12px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
-    text-decoration-line: strikethrough;
+    text-decoration-line: line-through;
     opacity: 0.5;
   }
 
   .substaskName {
-    color: yellow;
+    color: $white;
     font-size: 12px;
     font-style: normal;
     font-weight: 700;

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import BoardColumn from "./BoardColumn";
 import { DragDropContext } from "react-beautiful-dnd";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
+import { dragAndDropTask } from "../store/kanbanSlice";
 
 const KanbanBoard = ({
   setEditTaskModalIsOpen,
@@ -12,10 +14,21 @@ const KanbanBoard = ({
 }) => {
   // const [datas, setDatas] = useState(selectedKanban?.columns);
 
-  const datas = useSelector((state) => state.kanbans[selectedKanban]);
 
+  const datas = useSelector((state) => state.kanbans[selectedKanban]);
+  const dispatch = useDispatch()
   const onDragEnd = (result) => {
-    const { destination, source, draggableId, setEditTaskModalIsOpen } = result;
+    dispatch(dragAndDropTask({ ...result, datas }));
+
+    
+    // const { destination, source, draggableId, setEditTaskModalIsOpen } = result;
+
+    // console.log("destination : ")
+    // console.log(destination);
+    // console.log("source : ")
+    // console.log(source);
+    // console.log("dragableId : ")
+    // console.log(draggableId);
 
     // if (!destination) return;
 
@@ -23,38 +36,52 @@ const KanbanBoard = ({
     //   destination.droppableId === source.droppableId &&
     //   destination.index === source.index
     // ) {
+    //   console.log("no change")
     //   return;
     // }
 
-    // const start = datas.find((e) => e.name === source.droppableId);
-    // const finish = datas.find((e) => e.name === destination.droppableId);
+    // const start = datas.columns.find((e) => e.id === source.droppableId);
+    // const finish = datas.columns.find((e) => e.id === destination.droppableId);
 
-    // if (start === finish) {
-    //   console.log(destination.source);
-    //   console.log(datas);
 
-    //   const columnIndex = datas.findIndex(
-    //     (e) => e.name == destination.droppableId
-    //   );
+    // console.log("start")
+    // console.log(start);
+    // console.log('finish');
+    // console.log(finish);
 
-    //   const newColumns = Array.from(
-    //     datas.find((e) => e.name === source.droppableId).tasks
-    //   );
-    //   console.log(newColumns);
 
-    //   const element = newColumns[source.index];
-    //   newColumns.splice(source.index, 1);
-    //   newColumns.splice(destination.index, 0, element);
-
-    //   const newDatas = datas;
-    //   newDatas[columnIndex] = {
-    //     name: destination.droppableId,
-    //     tasks: newColumns,
-    //   };
-
-    //   setDatas(newDatas);
-    //   console.log(datas);
+    // if(start === finish) {
+      
+    //   console.log("same colonne")
     // }
+
+
+    // // // if (start === finish) {
+    // // //   console.log(destination.source);
+    // // //   console.log(datas);
+
+    // // //   const columnIndex = datas.findIndex(
+    // // //     (e) => e.name == destination.droppableId
+    // // //   );
+
+    // // //   const newColumns = Array.from(
+    // // //     datas.find((e) => e.name === source.droppableId).tasks
+    // // //   );
+    // // //   console.log(newColumns);
+
+    // // //   const element = newColumns[source.index];
+    // // //   newColumns.splice(source.index, 1);
+    // // //   newColumns.splice(destination.index, 0, element);
+
+    // // //   const newDatas = datas;
+    // // //   newDatas[columnIndex] = {
+    // // //     name: destination.droppableId,
+    // // //     tasks: newColumns,
+    // // //   };
+
+    // // //   setDatas(newDatas);
+    // // //   console.log(datas);
+    // // // }
   };
   return (
     <div className="board_container">
@@ -71,7 +98,7 @@ const KanbanBoard = ({
                   columnIndex={i}
                   column={e?.name}
                   tasks={e?.tasks}
-                  id={e?.id}
+                  columnId={e?.id}
                 />
               );
             })}
