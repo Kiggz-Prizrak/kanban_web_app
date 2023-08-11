@@ -29,7 +29,6 @@ const kanbanSlice = createSlice({
         ...action.payload.newColumn,
       });
     },
-
     addNewTask: (state, action) => {
       const { selectedKanban, column, newTask } = action.payload;
       state.kanbans[selectedKanban].columns[column].tasks.push({ ...newTask });
@@ -54,17 +53,23 @@ const kanbanSlice = createSlice({
       state.darkMode = !state.darkMode;
     },
 
+    //
+
     dragAndDropTask: (state, action) => {
       const { destination, source, draggableId, datas } = action.payload;
-      console.log("============================================")
-      console.log("destination : ");
-      console.log(destination);
-      console.log("source : ");
-      console.log(source);
-      console.log("dragableId : ");
-      console.log(draggableId);
-      console.log("============================================");
 
+      console.log(draggableId)
+
+      // console.log(datas);
+
+      // console.log("============================================");
+      // console.log("destination : ");
+      // console.log(destination);
+      // console.log("source : ");
+      // console.log(source);
+      // console.log("dragableId : ");
+      // console.log(draggableId);
+      // console.log("============================================");
 
       if (!destination) return;
 
@@ -72,7 +77,6 @@ const kanbanSlice = createSlice({
         destination.droppableId === source.droppableId &&
         destination.index === source.index
       ) {
-        console.log("no change");
         return;
       }
 
@@ -81,13 +85,76 @@ const kanbanSlice = createSlice({
         (e) => e.id === destination.droppableId
       );
 
-      console.log("start");
-      console.log(start);
-      console.log("finish");
-      console.log(finish);
+      // const item = datas.columns.find(
+      //   (column) => column.id === source.droppableId
+      // ).tasks[source.index];
+
+         const item = datas.columns.find(
+           (column) => column.id === source.droppableId
+         ).tasks.find((task) => task.id === draggableId)
+
 
       if (start === finish) {
-        console.log("same colonne");
+        // console.log("");
+        // console.log(
+        //   " =================== stay à the same colonne ==================="
+        // );
+        // console.log("");
+
+        const newColumn = datas.columns
+          .find((column) => column.id === source.droppableId)
+          .tasks.filter((task) => task.id != item.id);
+
+        console.log([
+          ...newColumn.slice(0, destination.index),
+          item,
+          ...newColumn.slice(destination.index),
+        ]);
+
+        // console.log(newColumn.slice(0, destination.index));
+        // console.log(newColumn.slice(destination.index));
+
+        state.kanbans
+          .find((kanban) => kanban.board == datas.board)
+          .columns.find(
+            (column) => column.id == destination.droppableId
+          ).tasks = [
+          ...newColumn.slice(0, destination.index),
+          item,
+          ...newColumn.slice(destination.index),
+        ];
+      } else {
+        // console.log("");
+        // console.log(
+        //   " =================== mouve to other colonne ==================="
+        // );
+        // console.log("");
+
+        // console.log(source.droppableId);
+        // console.log(destination.droppableId);
+
+        const previousColumn = datas.columns
+          .find((column) => column.id == source.droppableId)
+          .tasks.filter((task) => task.id != item.id);
+
+        state.kanbans
+          .find((kanban) => kanban.board == datas.board)
+          .columns.find((column) => column.id == source.droppableId).tasks =
+          previousColumn;
+
+        const newColumn = datas.columns.find(
+          (column) => column.id === destination.droppableId
+        ).tasks;
+
+        state.kanbans
+          .find((kanban) => kanban.board == datas.board)
+          .columns.find(
+            (column) => column.id == destination.droppableId
+          ).tasks = [
+          ...newColumn.slice(0, destination.index),
+          item,
+          ...newColumn.slice(destination.index),
+        ];
       }
     },
   },
