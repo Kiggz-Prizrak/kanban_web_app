@@ -12,7 +12,6 @@ const KanbanBoard = ({
   setDeleteTaskModalIsOpen,
   setTaskDetailsModalIsOpen,
 }) => {
-  // const [datas, setDatas] = useState(selectedKanban?.columns);
 
 
   const datas = useSelector((state) => state.kanbans[selectedKanban]);

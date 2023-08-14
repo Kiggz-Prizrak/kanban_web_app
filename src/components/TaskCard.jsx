@@ -57,7 +57,16 @@ const TaskCard = ({
           {OptionIsOpen ? (
             <>
               <div className="task_option">
-                <button onClick={() => setEditTaskModalIsOpen(true)}>
+                <button
+                  onClick={() =>
+                    setEditTaskModalIsOpen((prevState) => ({
+                      ...prevState,
+                      columnIndex,
+                      id: task.id,
+                      open: true,
+                    }))
+                  }
+                >
                   <EditIcon />
                 </button>
                 <button

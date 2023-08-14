@@ -40,6 +40,11 @@ const kanbanSlice = createSlice({
       ].tasks.filter((e) => e.id !== id);
       state.kanbans[selectedKanban].columns[columnIndex].tasks = removeItem;
     },
+    editTask: (state, action) => {
+      const { selectedKanban, columnIndex, taskId } = action.payload;
+
+
+    },
     updateSubtask: (state, action) => {
       const { selectedKanban, columnIndex, taskId, subtaskId, isChecked } =
         action.payload;
@@ -53,23 +58,8 @@ const kanbanSlice = createSlice({
       state.darkMode = !state.darkMode;
     },
 
-    //
-
     dragAndDropTask: (state, action) => {
       const { destination, source, draggableId, datas } = action.payload;
-
-      console.log(draggableId)
-
-      // console.log(datas);
-
-      // console.log("============================================");
-      // console.log("destination : ");
-      // console.log(destination);
-      // console.log("source : ");
-      // console.log(source);
-      // console.log("dragableId : ");
-      // console.log(draggableId);
-      // console.log("============================================");
 
       if (!destination) return;
 
@@ -85,34 +75,15 @@ const kanbanSlice = createSlice({
         (e) => e.id === destination.droppableId
       );
 
-      // const item = datas.columns.find(
-      //   (column) => column.id === source.droppableId
-      // ).tasks[source.index];
-
          const item = datas.columns.find(
            (column) => column.id === source.droppableId
          ).tasks.find((task) => task.id === draggableId)
 
-
       if (start === finish) {
-        // console.log("");
-        // console.log(
-        //   " =================== stay à the same colonne ==================="
-        // );
-        // console.log("");
 
         const newColumn = datas.columns
           .find((column) => column.id === source.droppableId)
           .tasks.filter((task) => task.id != item.id);
-
-        console.log([
-          ...newColumn.slice(0, destination.index),
-          item,
-          ...newColumn.slice(destination.index),
-        ]);
-
-        // console.log(newColumn.slice(0, destination.index));
-        // console.log(newColumn.slice(destination.index));
 
         state.kanbans
           .find((kanban) => kanban.board == datas.board)
@@ -124,14 +95,6 @@ const kanbanSlice = createSlice({
           ...newColumn.slice(destination.index),
         ];
       } else {
-        // console.log("");
-        // console.log(
-        //   " =================== mouve to other colonne ==================="
-        // );
-        // console.log("");
-
-        // console.log(source.droppableId);
-        // console.log(destination.droppableId);
 
         const previousColumn = datas.columns
           .find((column) => column.id == source.droppableId)
@@ -171,5 +134,6 @@ export const {
   addNewColumn,
   addNewTask,
   deleteTask,
+  editTask,
   updateSubtask,
 } = kanbanSlice.actions;
