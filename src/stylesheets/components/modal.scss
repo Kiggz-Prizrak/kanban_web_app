@@ -53,7 +53,7 @@
 }
 
 .form_input_text_description {
-    background: none;
+  background: none;
   border-radius: 4px;
   border: solid 1px $line_dark;
   height: 112px;
@@ -62,11 +62,9 @@
   margin: 12px 0;
   color: $white;
   @include body_l;
- 
-  resize: none;
-  
-}
 
+  resize: none;
+}
 
 .form_dropdown_list {
   display: flex;
@@ -141,7 +139,7 @@
     line-height: normal;
   }
 
-  .description_field{
+  .description_field {
     height: 112px;
   }
 }

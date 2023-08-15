@@ -1,10 +1,10 @@
-.darkmodeButton {
+.themeButton {
   margin: 0 30px;
   @include flex_arround;
   height: 48px;
   border-radius: 6px;
-  background-color: $very_dark_grey;
-  margin:30px;
+  // background-color: $very_dark_grey;
+  margin: 30px;
   span {
     @include flex_midle;
   }
@@ -25,10 +25,17 @@
   }
 }
 
+.themeButton--lightmode {
+  background-color: $light_grey;
+}
+.themeButton--darkmode {
+  background-color: $very_dark_grey;
+}
+
 .darkmode_enabled {
   flex-direction: row-reverse;
 }
 
-.darkmode_disabled {
+.lightmode_disabled {
   flex-direction: row;
 }

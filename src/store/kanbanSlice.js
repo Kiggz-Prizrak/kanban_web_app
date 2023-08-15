@@ -4,7 +4,7 @@ const kanbanSlice = createSlice({
   name: "kanbans",
   initialState: {
     kanbans: [],
-    darkMode: true,
+    theme: { currentTheme: "darkmode", themeList: ["darkmode", "lightmode"] },
   },
   reducers: {
     addNewBoard: (state, action) => {
@@ -42,12 +42,14 @@ const kanbanSlice = createSlice({
     },
     editTask: (state, action) => {
       const { selectedKanban, columnIndex, newTask } = action.payload;
-      
-     const taskToEdit = state.kanbans[selectedKanban].columns[columnIndex].tasks.find((task) => task.id == newTask.id) 
 
-     taskToEdit.title = newTask.title;
-     taskToEdit.description = newTask.description;
-     taskToEdit.subtasks = newTask.subtasks
+      const taskToEdit = state.kanbans[selectedKanban].columns[
+        columnIndex
+      ].tasks.find((task) => task.id == newTask.id);
+
+      taskToEdit.title = newTask.title;
+      taskToEdit.description = newTask.description;
+      taskToEdit.subtasks = newTask.subtasks;
     },
     updateSubtask: (state, action) => {
       const { selectedKanban, columnIndex, taskId, subtaskId, isChecked } =
@@ -58,8 +60,10 @@ const kanbanSlice = createSlice({
         .subtasks.find((subtask) => subtask.id === subtaskId).isChecked =
         isChecked;
     },
-    editDarkmode: (state) => {
-      state.darkMode = !state.darkMode;
+    editTheme: (state) => {
+      state.theme.currentTheme = state.theme.themeList.find(
+        (theme) => theme != state.theme.currentTheme
+      );
     },
 
     dragAndDropTask: (state, action) => {
@@ -79,12 +83,11 @@ const kanbanSlice = createSlice({
         (e) => e.id === destination.droppableId
       );
 
-         const item = datas.columns.find(
-           (column) => column.id === source.droppableId
-         ).tasks.find((task) => task.id === draggableId)
+      const item = datas.columns
+        .find((column) => column.id === source.droppableId)
+        .tasks.find((task) => task.id === draggableId);
 
       if (start === finish) {
-
         const newColumn = datas.columns
           .find((column) => column.id === source.droppableId)
           .tasks.filter((task) => task.id != item.id);
@@ -99,7 +102,6 @@ const kanbanSlice = createSlice({
           ...newColumn.slice(destination.index),
         ];
       } else {
-
         const previousColumn = datas.columns
           .find((column) => column.id == source.droppableId)
           .tasks.filter((task) => task.id != item.id);
@@ -130,7 +132,7 @@ const kanbanSlice = createSlice({
 export const kanbanReducer = kanbanSlice.reducer;
 
 export const {
-  editDarkmode,
+  editTheme,
   dragAndDropTask,
   addNewBoard,
   editBoard,
