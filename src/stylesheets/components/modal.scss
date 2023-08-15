@@ -52,6 +52,22 @@
   @include body_l;
 }
 
+.form_input_text_description {
+    background: none;
+  border-radius: 4px;
+  border: solid 1px $line_dark;
+  height: 112px;
+  width: 100%;
+  text-indent: 10px;
+  margin: 12px 0;
+  color: $white;
+  @include body_l;
+ 
+  resize: none;
+  
+}
+
+
 .form_dropdown_list {
   display: flex;
   align-items: center;
@@ -123,5 +139,9 @@
     font-style: normal;
     font-weight: 700;
     line-height: normal;
+  }
+
+  .description_field{
+    height: 112px;
   }
 }

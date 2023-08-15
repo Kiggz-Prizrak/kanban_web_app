@@ -29,7 +29,6 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban }) => {
     columns.forEach((column) => {
       if (columns.filter((e) => e.name == column.name).length > 1) {
         setColumnError(true);
-        console.log("oui");
       }
     });
 
@@ -67,7 +66,6 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban }) => {
       }
     });
     setColumns(newColumns);
-    console.log(newColumns);
   };
 
   return (

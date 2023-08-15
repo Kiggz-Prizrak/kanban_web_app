@@ -41,9 +41,13 @@ const kanbanSlice = createSlice({
       state.kanbans[selectedKanban].columns[columnIndex].tasks = removeItem;
     },
     editTask: (state, action) => {
-      const { selectedKanban, columnIndex, taskId } = action.payload;
+      const { selectedKanban, columnIndex, newTask } = action.payload;
+      
+     const taskToEdit = state.kanbans[selectedKanban].columns[columnIndex].tasks.find((task) => task.id == newTask.id) 
 
-
+     taskToEdit.title = newTask.title;
+     taskToEdit.description = newTask.description;
+     taskToEdit.subtasks = newTask.subtasks
     },
     updateSubtask: (state, action) => {
       const { selectedKanban, columnIndex, taskId, subtaskId, isChecked } =
