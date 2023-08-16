@@ -1,28 +1,33 @@
 .task_item {
-  background-color: $dark-grey;
-  margin-bottom: 20px ;
+  margin-bottom: 20px;
   border-radius: 8px;
   width: 100%;
   min-height: 88px;
   flex-shrink: 0;
   @include flex_separation;
-  box-shadow: 0px 4px 6px 0px rgba(54, 78, 126, 0.10);
+  box-shadow: 2px 2px 7px 1px $very-dark-grey;
 
   button {
     margin-right: 15px;
   }
 }
 
+.task_item--darkmode {
+  background-color: $dark-grey;
+}
+.task_item--lightmode {
+  background-color: $white;
+}
+
 .task_item_text {
   h4 {
     @include heading_m;
-    color: $white;
     margin: 0;
     margin: 8px 15px;
   }
   p {
     @include body_m;
-    color: $light_grey;
+    color: $medium_grey;
     margin: 0;
     margin: 8px 15px;
   }
@@ -45,7 +50,11 @@
 }
 
 .task_button_title:hover {
-h4 {
-    text-decoration: underline;
-    }
+  text-decoration: underline;
+}
+.task_button_title--darkmode {
+  color: $white;
+}
+.task_button_title--lightmode {
+  color: $black;
 }

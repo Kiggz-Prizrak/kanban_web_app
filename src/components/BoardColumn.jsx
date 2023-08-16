@@ -18,7 +18,7 @@ const BoardColumn = ({
         <span>
           <Round color="#8471F2" />
         </span>
-        {column}
+        {column} {tasks.length ? `(${tasks.length})` : ""}
       </h3>
       <Droppable droppableId={columnId}>
         {(provider) => (

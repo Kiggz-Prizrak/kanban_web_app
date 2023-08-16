@@ -1,6 +1,7 @@
 import { useState } from "react";
-
 import { Draggable } from "react-beautiful-dnd";
+import { useSelector } from "react-redux";
+
 
 import CirclesOptions from "../assets/icons/CirclesOptions";
 import CloseIcon from "../assets/icons/CloseIcon";
@@ -19,6 +20,8 @@ const TaskCard = ({
     (subtask) => subtask.isCompleted
   ).length;
 
+  const theme = useSelector((state) => state.theme.currentTheme)
+
   // console.log(task)
   const [OptionIsOpen, setOptionIsOpen] = useState(false);
 
@@ -30,11 +33,11 @@ const TaskCard = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          className="task_item"
+          className={`task_item task_item--${theme}`}
         >
           <div className="task_item_text">
             <button
-              className="task_button_title"
+              className={`task_button_title task_button_title--${theme}`}
               onClick={() =>
                 setTaskDetailsModalIsOpen((prevState) => ({
                   ...prevState,
