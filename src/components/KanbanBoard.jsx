@@ -15,6 +15,9 @@ const KanbanBoard = ({
 
 
   const datas = useSelector((state) => state.kanbans[selectedKanban]);
+
+  const theme = useSelector((state) => state.theme.currentTheme)
+
   const dispatch = useDispatch()
   const onDragEnd = (result) => {
     dispatch(dragAndDropTask({ ...result, datas }));
@@ -40,7 +43,7 @@ const KanbanBoard = ({
             })}
           </DragDropContext>
           <button
-            className="boardKanban_columnAdder_btn"
+            className={`boardKanban_columnAdder_btn boardKanban_columnAdder_btn--${theme}`}
             onClick={() => setNewColumnModalIsOpen(true)}
           >
             + New Column
@@ -48,7 +51,7 @@ const KanbanBoard = ({
         </>
       ) : (
         <>
-          <div className="board_unless_column">
+          <div className={"board_unless_column"}>
             <h3>This board is empty. Create a new column to get started</h3>
             <button
               onClick={() => setNewColumnModalIsOpen(true)}

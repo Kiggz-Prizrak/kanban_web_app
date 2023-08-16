@@ -1,14 +1,26 @@
-header {
+.header_container {
   @include flex_separation;
   height: 96px;
-  background-color: $dark-grey;
-  border-bottom: solid 2px $line_dark;
   width: 100%;
   // position: fixed;
   h1 {
     @include heading_xl;
-    color: $white;
+
     margin: 0px 20px;
+  }
+}
+.header_container--darkmode {
+  background-color: $dark-grey;
+  border-bottom: solid 2px $line_dark;
+  h1 {
+    color: $white;
+  }
+}
+.header_container--lightmode {
+  background-color: $white;
+  border-bottom: solid 2px $line_light;
+  h1 {
+    color: $black;
   }
 }
 
@@ -22,11 +34,17 @@ header {
   @include heading_m;
   background-color: $main_purple;
   color: $white;
-
   width: 164px;
   height: 48px;
   flex-shrink: 0;
   border-radius: 25px;
+  &:hover {
+    background-color: $light_purple;
+  }
+}
+.header_taskAdder--enabled {
+  pointer-events: none;
+  background-color: $light_purple;
 }
 
 .header_option_btn {
@@ -41,16 +59,24 @@ header {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  
+
   border-radius: 8px;
   max-width: 192px;
   width: 100%;
-  background-color: $very_dark_grey;
-  box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
--webkit-box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
--moz-box-shadow: 2px 2px 31px -3px rgba(0,0,0,0.45);
+  box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
+  -webkit-box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
+  -moz-box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
   button {
     padding: 10px 20px;
     text-align: left;
   }
+}
+
+.optin_btn_windows--darkmode {
+  background-color: $very_dark_grey;
+
+}
+.optin_btn_windows--lightmode {
+  background-color: $white;
+
 }

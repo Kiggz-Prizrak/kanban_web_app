@@ -2,8 +2,20 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
-  background-color: $very_dark_grey;
+}
+.main_container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   position: relative;
+}
+.main_container--darkmode {
+  background-color: $very_dark_grey;
+
+}
+.main_container--lightmode {
+  background-color: $light_grey;
+
 }
 
 .kanban_page_container {

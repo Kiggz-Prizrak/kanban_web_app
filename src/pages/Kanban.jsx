@@ -44,12 +44,13 @@ const Kanban = () => {
   });
 
   const kanbansList = useSelector((state) => state.kanbans);
+  const theme = useSelector((state) => state.theme.currentTheme);
 
   // console.log(kanbansList[selectedKanban]);
   // console.log(editTaskModalIsOpen);
 
   return (
-    <>
+    <div className={`main_container main_container--${theme}`}>
       <Sidebar
         selectedKanban={selectedKanban}
         setNewBoardModalIsOpen={setNewBoardModalIsOpen}
@@ -146,7 +147,7 @@ const Kanban = () => {
       ) : (
         ""
       )}
-    </>
+    </div>
   );
 };
 

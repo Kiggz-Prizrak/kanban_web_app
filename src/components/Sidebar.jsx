@@ -2,6 +2,9 @@ import BoardIcon from "../assets/icons/BoardIcon";
 import Logo from "../assets/Logo";
 import EyeIcon from "../assets/icons/EyeIcon";
 import DarkmodeButton from "./DarkmodeButton";
+import { useSelector } from "react-redux";
+
+
 const Sidebar = ({
   selectedKanban,
   kanbansList,
@@ -9,12 +12,14 @@ const Sidebar = ({
   setNewBoardModalIsOpen,
 }) => {
 
+  const theme = useSelector((state) => state.theme.currentTheme)
+
   return (
     <aside>
-      <div className="sidebar_logo">
-        <Logo />
+      <div className={`sidebar_logo sidebar_logo--${theme} `}>
+        <Logo color={theme === "darkmode" ? "white" : "black"} />
       </div>
-      <div className="sidebar_content">
+      <div className={`sidebar_content sidebar_content--${theme} `}>
         <div>
           <h2>ALL BOARDS ({kanbansList.length})</h2>
           <ul className="sidebar_menu">

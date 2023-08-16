@@ -23,10 +23,19 @@ aside {
   display: flex;
   align-items: center;
   padding: 0 30px;
+}
+
+.sidebar_logo--darkmode {
   background-color: $dark-grey;
   border-right: solid 2px $line_dark;
   border-bottom: solid 2px $line_dark;
 }
+.sidebar_logo--lightmode {
+  background-color: $white;
+  border-right: solid 2px $line_light;
+  border-bottom: solid 2px $line_light;
+}
+
 .sidebar_content {
   display: flex;
   flex-direction: column;
@@ -34,6 +43,14 @@ aside {
   height: 100%;
   background-color: $dark-grey;
   border-right: solid 2px $line_dark;
+}
+.sidebar_content--darkmode {
+  background-color: $dark-grey;
+  border-right: solid 2px $line_dark;
+}
+.sidebar_content--lightmode {
+  background-color: $white;
+  border-right: solid 2px $line_light;
 }
 
 .sidebar_menu {

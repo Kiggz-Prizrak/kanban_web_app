@@ -1,5 +1,3 @@
-
-
 .boardKanban_columnAdder_btn {
   color: white;
   max-width: 280px;
@@ -9,6 +7,9 @@
   margin-left: 12px;
   @include heading_xl;
   color: $medium_grey;
+}
+
+.boardKanban_columnAdder_btn--darkmode {
   background: linear-gradient(
     180deg,
     rgba(43, 44, 55, 0.25) 0%,
@@ -16,7 +17,14 @@
   );
 }
 
-.board_unless_column{
+.boardKanban_columnAdder_btn--lightmode {
+  background: linear-gradient(
+    180deg,
+    #e9effa 0%,
+    rgba(233, 239, 250, 0.5) 100%
+  );
+}
+.board_unless_column {
   flex-direction: column;
   @include flex_midle;
   width: 100%;
