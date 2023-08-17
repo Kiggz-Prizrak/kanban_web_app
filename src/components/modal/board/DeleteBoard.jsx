@@ -5,6 +5,7 @@ const DeleteBoard = ({
   setDeleteBoardModalIsOpen,
   selectedKanban,
   setSelectedKanban,
+  theme
 }) => {
   const dispatch = useDispatch();
 
@@ -18,9 +19,11 @@ const DeleteBoard = ({
 
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <div className="modal_content">
-          <h2 className="madal_delete_title">Delete this board?</h2>
+          <h2 className={`modal_delete_title modal_delete_title--{theme}`}>
+            Delete this board?
+          </h2>
           <p>
             Are you sure you want to delete the ‘Platform Launch’ board? This
             action will remove all columns and tasks and cannot be reversed.
@@ -30,7 +33,7 @@ const DeleteBoard = ({
               Delete
             </button>
             <button
-              className="form_secondary_button"
+              className={`form_secondary_button form_secondary_button--${theme}`}
               onClick={() => setDeleteBoardModalIsOpen(false)}
             >
               Cancel

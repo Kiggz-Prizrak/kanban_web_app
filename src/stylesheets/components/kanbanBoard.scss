@@ -7,6 +7,9 @@
   margin-left: 12px;
   @include heading_xl;
   color: $medium_grey;
+  &:hover {
+    color: $main_purple;
+  }
 }
 
 .boardKanban_columnAdder_btn--darkmode {

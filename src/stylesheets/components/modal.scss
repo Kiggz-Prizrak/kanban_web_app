@@ -12,12 +12,28 @@
   width: 100%;
   max-width: 480px;
 }
+.modal_container--darkmode {
+  background-color: $dark-grey;
+  label, h2 {
+    color: $white;
+  }
+}
+.modal_container--lightmode {
+  background-color: $white;
+  label, h2 {
+    color: $black;
+  }
+}
 
 .modal_content {
   margin: 32px;
   h2 {
     @include heading_l;
-    color: $white;
+ 
+  }
+  p {
+    @include body_l;
+    color: $medium_grey;
   }
 }
 .modal_form {
@@ -27,17 +43,16 @@
     color: $white;
   }
 }
-.modal_content {
-  margin: 32px;
-  p {
-    @include body_l;
-    color: $medium_grey;
-  }
-}
 
 .form_title {
   @include flex_separation;
   margin: 12px 0;
+}
+.form_title--darkmode h2 {
+  color: $white;
+}
+.form_title--lightmode h2 {
+  color: $black;
 }
 
 .form_input_text {
@@ -97,9 +112,8 @@
   }
 }
 
-.madal_delete_title {
+.modal_delete_title {
   @include heading_l;
-  color: $red;
 }
 
 .modal_delete_btn_section {
@@ -123,20 +137,14 @@
   }
   .substaskNameChecked {
     color: $white;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
+    @include body_m;
     text-decoration-line: line-through;
     opacity: 0.5;
   }
 
   .substaskName {
     color: $white;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
+    @include body_m;
   }
 
   .description_field {

@@ -11,9 +11,8 @@ import CloseIcon from "../../../assets/icons/CloseIcon";
 
 import { idGenerator } from "../../../variables";
 
-const AddBoard = ({ setAddBoardModalIsOpen }) => {
-
-  console.log(idGenerator("board"))
+const AddBoard = ({ setAddBoardModalIsOpen, theme }) => {
+  console.log(idGenerator("board"));
 
   const { register, handleSubmit, control, formState } = useForm();
   const { errors } = formState;
@@ -24,26 +23,25 @@ const AddBoard = ({ setAddBoardModalIsOpen }) => {
 
   const kanbansList = useSelector((state) => state.kanbans);
 
-  const subForm = (data, e) => {
-    setErrorTitle(false)
+  const subForm = (data) => {
+    setErrorTitle(false);
 
     if (!kanbansList.map((e) => e.board).includes(data.board)) {
       dispatch(addNewBoard({ ...data, id: idGenerator("board"), columns }));
       setAddBoardModalIsOpen(false);
     } else {
-    setErrorTitle(true)
-
+      setErrorTitle(true);
     }
   };
 
- const addNewColumn = (e) => {
-   e.preventDefault();
-   setColumns((list) => [
-     ...list,
-     { name: "", id: idGenerator("column", columns.length + 1), taks: [] },
-   ]);
-   console.log(columns);
- };
+  const addNewColumn = (e) => {
+    e.preventDefault();
+    setColumns((list) => [
+      ...list,
+      { name: "", id: idGenerator("column", columns.length + 1), taks: [] },
+    ]);
+    console.log(columns);
+  };
 
   const deleteColumn = (columnIndex) => {
     setColumns((list) => list.filter((element, index) => index != columnIndex));
@@ -54,7 +52,11 @@ const AddBoard = ({ setAddBoardModalIsOpen }) => {
     let newColumns = Array.from(columns);
     newColumns.map((_, i) => {
       if (i == e.target.id) {
-        newColumns[i] = { name: e.target.value,id: idGenerator("column", i), tasks: [] };
+        newColumns[i] = {
+          name: e.target.value,
+          id: idGenerator("column", i),
+          tasks: [],
+        };
       }
     });
     setColumns(newColumns);
@@ -62,14 +64,14 @@ const AddBoard = ({ setAddBoardModalIsOpen }) => {
 
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <form
           className="modal_form"
           // onSubmit={(e) => handleSubmit(e)}
           onSubmit={handleSubmit(subForm)}
           action="submit"
         >
-          <div className="form_title">
+          <div className={`form_title form_title--${theme}`}>
             <h2>Add New Board</h2>
             <button type="button" onClick={() => setAddBoardModalIsOpen(false)}>
               <CloseIcon />
@@ -117,7 +119,7 @@ const AddBoard = ({ setAddBoardModalIsOpen }) => {
           )}
           <button
             type="button"
-            className="form_secondary_button"
+            className={`form_secondary_button form_secondary_button--${theme}`}
             onClick={addNewColumn}
           >
             + Add New Column

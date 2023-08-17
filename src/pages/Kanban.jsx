@@ -82,7 +82,10 @@ const Kanban = () => {
       {/* ======= modal section ======= */}
 
       {newBoardModalIsOpen ? (
-        <AddBoard setAddBoardModalIsOpen={setNewBoardModalIsOpen} />
+        <AddBoard
+          setAddBoardModalIsOpen={setNewBoardModalIsOpen}
+          theme={theme}
+        />
       ) : (
         ""
       )}
@@ -91,6 +94,7 @@ const Kanban = () => {
         <EditBoard
           setEditBoardModalIsOpen={setEditBoardModalIsOpen}
           selectedKanban={selectedKanban}
+          theme={theme}
         />
       ) : (
         ""
@@ -100,6 +104,7 @@ const Kanban = () => {
           setDeleteBoardModalIsOpen={setDeleteBoardModalIsOpen}
           selectedKanban={selectedKanban}
           setSelectedKanban={setSelectedKanban}
+          theme={theme}
         />
       ) : (
         ""
@@ -109,6 +114,7 @@ const Kanban = () => {
         <AddColumn
           setNewColumnModalIsOpen={setNewColumnModalIsOpen}
           selectedKanban={selectedKanban}
+          theme={theme}
         />
       ) : (
         ""
@@ -117,6 +123,7 @@ const Kanban = () => {
         <AddTask
           setNewTaskModalIsOpen={setNewTaskModalIsOpen}
           selectedKanban={selectedKanban}
+          theme={theme}
         />
       ) : (
         ""
@@ -125,6 +132,7 @@ const Kanban = () => {
         <DeleteTask
           setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
           deleteTaskModalIsOpen={deleteTaskModalIsOpen}
+          theme={theme}
         />
       ) : (
         ""
@@ -134,6 +142,7 @@ const Kanban = () => {
           selectedKanban={selectedKanban}
           taskDatas={taskDetailsModalIsOpen}
           setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
+          theme={theme}
         />
       ) : (
         ""
@@ -143,6 +152,7 @@ const Kanban = () => {
           selectedKanban={selectedKanban}
           taskDatas={editTaskModalIsOpen}
           setEditTaskModalIsOpen={setEditTaskModalIsOpen}
+          theme={theme}
         />
       ) : (
         ""

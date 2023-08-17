@@ -11,7 +11,7 @@ import { idGenerator } from "../../../variables";
 
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban }) => {
+const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban, theme }) => {
   const { register, handleSubmit, control, formState } = useForm();
   const { errors } = formState;
   const dispatch = useDispatch();
@@ -68,15 +68,16 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban }) => {
     setColumns(newColumns);
   };
 
+
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <form
           className="modal_form"
           onSubmit={handleSubmit(subForm)}
           action="submit"
         >
-          <div className="form_title">
+          <div className={`form_title form_title--${theme}`}>
             <h2>Edit Board</h2>
             <button
               type="button"
@@ -126,12 +127,11 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban }) => {
               </div>
             ))}
           </div>
-          {/* {errorTitle ? (
-            <p className="errorMessage">Board already Exist</p>
-          ) : (
-            ""
-          )} */}
-          <button className="form_secondary_button" onClick={addNewColumn}>
+
+          <button
+            className={`form_secondary_button form_secondary_button--${theme}`}
+            onClick={addNewColumn}
+          >
             + Add New Column
           </button>
           <button className="form_button_submit" type="submit">

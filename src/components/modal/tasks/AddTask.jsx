@@ -12,7 +12,7 @@ import { idGenerator } from "../../../variables";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 import ArrowIcon from "../../../assets/icons/ArrowIcon";
 
-const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
+const AddTask = ({ setNewTaskModalIsOpen, selectedKanban, theme }) => {
   const { register, handleSubmit, control, formState } = useForm();
   const { errors } = formState;
   const dispatch = useDispatch();
@@ -83,13 +83,13 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
 
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <form
           className="modal_form"
           onSubmit={handleSubmit(subForm)}
           action="submit"
         >
-          <div className="form_title">
+          <div className={`form_title form_title--${theme}`}>
             <h2>Add New Task</h2>
             <button type="button" onClick={() => setNewTaskModalIsOpen(false)}>
               <CloseIcon />
@@ -154,13 +154,18 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
               </div>
             ))}
           </div>
-          <button className="form_secondary_button" onClick={addNewSubtask}>
+          <button
+            className={`form_secondary_button form_secondary_button--${theme}`}
+            onClick={addNewSubtask}
+          >
             + Add New Subtask
           </button>
 
           <label htmlFor="status">Status</label>
           <div name="status" className="form_dropdown">
-            <div className="form_dropdown_title">
+            <div
+              className={`form_dropdown_title form_dropdown_title--${theme}`}
+            >
               <h4>{kanban.columns[status].name}</h4>
               <button
                 className={dropdownIsOpen ? "form_dropdown_button_active" : ""}
@@ -180,6 +185,7 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban }) => {
                     <li key={i}>
                       <button
                         type="button"
+                        className="form_button_submit"
                         onClick={() => setStatus(kanban.columns.indexOf(value))}
                       >
                         {value.name}

@@ -3,13 +3,25 @@
   @include form_button;
   background-color: $main_purple;
   color: $white;
+  &:hover {
+    background-color: $light_purple;
+  }
 }
 
 .form_secondary_button {
   @include button_font;
   @include form_button;
+}
+.form_secondary_button--darkmode {
   background-color: $white;
   color: $main_purple;
+}
+.form_secondary_button--lightmode {
+  background-color: $light_grey;
+  color: $main_purple;
+  &:hover {
+    background: rgba(99, 95, 199, 0.25);
+  }
 }
 
 .form_delete_button {
@@ -52,6 +64,18 @@
   }
 }
 
+.form_dropdown_title--darkmode {
+  h4 {
+    color: $white;
+  }
+}
+.form_dropdown_title--lightmode {
+   h4 {
+    color: $black;
+  }
+}
+
+
 .form_dropdown_button_active {
   transform: rotate(180deg);
 }
@@ -65,5 +89,3 @@
   @include body_l;
   color: $red;
 }
-
-

@@ -47,10 +47,18 @@ aside {
 .sidebar_content--darkmode {
   background-color: $dark-grey;
   border-right: solid 2px $line_dark;
+  li button:hover {
+    background-color: $white;
+    color: $main_purple;
+  }
 }
 .sidebar_content--lightmode {
   background-color: $white;
   border-right: solid 2px $line_light;
+  li button:hover {
+    background-color: $light_grey;
+    color: $main_purple;
+  }
 }
 
 .sidebar_menu {
