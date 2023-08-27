@@ -89,7 +89,11 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban, theme }) => {
 
           <label htmlFor="name">Board Name</label>
           <input
-            className={errors.name?.message ? "errorInput" : "form_input_text"}
+            className={
+              errors.name?.message
+                ? "errorInput"
+                : `form_input_text form_input_text--${theme}`
+            }
             id="name"
             type="text"
             name="board"
@@ -112,7 +116,7 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban, theme }) => {
             {columns.map((value, i) => (
               <div key={i} className="sub_element_btn">
                 <input
-                  className="form_input_text"
+                  className={`form_input_text form_input_text--${theme}`}
                   id={i}
                   type="text"
                   name="column"

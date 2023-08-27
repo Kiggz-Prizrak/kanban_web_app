@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteTask } from "../../../store/kanbanSlice";
 
 const DeleteTask = ({
@@ -19,9 +19,11 @@ const DeleteTask = ({
     }));
   };
 
+  const theme = useSelector((store) => store.theme.currentTheme)
+
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <div className="modal_content">
           <h2 className="madal_delete_title">Delete This Task?</h2>
           <p>
@@ -33,7 +35,7 @@ const DeleteTask = ({
               Delete
             </button>
             <button
-              className="form_secondary_button"
+              className={`form_secondary_button form_secondary_button--${theme}`}
               onClick={() =>
                 setDeleteTaskModalIsOpen((prevState) => ({
                   ...prevState,

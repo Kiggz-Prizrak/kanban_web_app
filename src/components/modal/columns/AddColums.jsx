@@ -65,7 +65,9 @@ const AddColumn = ({ setNewColumnModalIsOpen, selectedKanban, theme }) => {
             <label htmlFor="name">Columns Name</label>
             <input
               className={
-                errors.name?.message ? "errorInput" : "form_input_text"
+                errors.name?.message
+                  ? "errorInput"
+                  : `form_input_text form_input_text--${theme}`
               }
               id="name"
               type="text"

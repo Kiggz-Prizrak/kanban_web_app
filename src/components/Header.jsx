@@ -10,7 +10,7 @@ const Header = ({
   setDeleteBoardModalIsOpen,
 }) => {
   const isKanban = useSelector((state) => state.kanbans).length;
-  const isColumns = useSelector((state) => state.kanbans[selectedKanban].columns).length;
+  const isColumns = useSelector((state) => state.kanbans[selectedKanban]?.columns)?.length;
   const theme = useSelector((state) => state.theme.currentTheme)
 
   const [optionsIsOpen, setOptionsIsOpen] = useState(false);

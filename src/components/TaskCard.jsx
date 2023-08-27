@@ -17,7 +17,7 @@ const TaskCard = ({
 }) => {
   const substasksTotal = task.subtasks.length;
   const substasksCompleted = task.subtasks.filter(
-    (subtask) => subtask.isCompleted
+    (subtask) => subtask.isChecked
   ).length;
 
   const theme = useSelector((state) => state.theme.currentTheme)
@@ -59,7 +59,7 @@ const TaskCard = ({
           </div>
           {OptionIsOpen ? (
             <>
-              <div className="task_option">
+              <div className={`task_option task_option--${theme}`}>
                 <button
                   onClick={() =>
                     setEditTaskModalIsOpen((prevState) => ({

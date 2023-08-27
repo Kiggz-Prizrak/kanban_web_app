@@ -14,13 +14,13 @@
 }
 .modal_container--darkmode {
   background-color: $dark-grey;
-  label, h2 {
+  label, h2, textarea, input {
     color: $white;
   }
 }
 .modal_container--lightmode {
   background-color: $white;
-  label, h2 {
+  label, h2, textarea, input {
     color: $black;
   }
 }
@@ -63,9 +63,18 @@
   width: 100%;
   text-indent: 10px;
   margin: 12px 0;
-  color: $white;
   @include body_l;
 }
+
+.form_input_text--darkmode {
+  color: $white;
+
+}
+.form_input_text--lightmode {
+  color: $black;
+
+}
+
 
 .form_input_text_description {
   background: none;
@@ -136,14 +145,12 @@
     accent-color: $main_purple;
   }
   .substaskNameChecked {
-    color: $white;
     @include body_m;
     text-decoration-line: line-through;
     opacity: 0.5;
   }
 
   .substaskName {
-    color: $white;
     @include body_m;
   }
 
@@ -151,3 +158,24 @@
     height: 112px;
   }
 }
+
+.checkbox_field_container--darkmode {
+  background-color: $very-dark-grey;
+  .substaskNameChecked {
+    color: $white;
+  }
+  &:hover {
+    background-color: $main_purple;
+  }
+
+} 
+.checkbox_field_container--lightmode{
+  background-color: $light_grey;
+   .substaskNameChecked {
+    color: $black;
+  }
+  &:hover {
+    background-color: $light_purple;
+  }
+
+} 

@@ -33,20 +33,42 @@
   }
 }
 
+
+@keyframes open{
+  0% {
+    width: 40px;
+  }
+  70% {
+    width: 120px;
+  } 
+}
+
 .task_option {
+  overflow: hidden;
+  animation: 0.5s open forwards;
+
   @include flex_separation;
   margin-right: 10px;
   border-radius: 7px;
   button {
-    color: $light_grey;
+    color: $medium_grey;
     font-size: 18px;
     margin: 10px 6px;
   }
-  background-color: $very-dark-grey;
+
   .task_option_button_closer {
     transform: rotate(90deg);
+
     margin-right: 15px;
   }
+}
+
+.task_option--darkmode {
+  background-color: $very-dark-grey;
+}
+
+.task_option--lightmode {
+  background-color: $light_grey;
 }
 
 .task_button_title:hover {

@@ -17,6 +17,7 @@ const TaskEditor = ({ selectedKanban, taskDatas, setEditTaskModalIsOpen }) => {
       taskDatas.columnIndex
     ].tasks.find((task) => task.id === taskDatas.id)
   );
+  const theme = useSelector((state) => state.theme.currentTheme)
 
   const { register, handleSubmit, control, formState } = useForm();
   const { errors } = formState;
@@ -81,14 +82,14 @@ const TaskEditor = ({ selectedKanban, taskDatas, setEditTaskModalIsOpen }) => {
 
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <form
           className="modal_form"
           onSubmit={handleSubmit(subForm)}
           action="submit"
         >
-          <div className="form_title">
-            <h2>Edit Board</h2>
+          <div className={`form_title form_title--${theme}`}>
+            <h2>Edit Task</h2>
             <button
               type="button"
               onClick={() =>
@@ -161,7 +162,10 @@ const TaskEditor = ({ selectedKanban, taskDatas, setEditTaskModalIsOpen }) => {
                 </button>
               </div>
             ))}
-            <button className="form_secondary_button" onClick={addNewSubtask}>
+            <button
+              className={`form_secondary_button form_secondary_button--${theme}`}
+              onClick={addNewSubtask}
+            >
               + Add New Subtask
             </button>
           </div>

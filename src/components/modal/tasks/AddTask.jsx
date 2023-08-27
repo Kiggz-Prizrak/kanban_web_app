@@ -98,7 +98,11 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban, theme }) => {
 
           <label htmlFor="name">Title</label>
           <input
-            className={errors.name?.message ? "errorInput" : "form_input_text"}
+            className={
+              errors.name?.message
+                ? "errorInput"
+                : `form_input_text form_input_text--${theme}`
+            }
             id="title"
             type="text"
             name="title"
@@ -117,7 +121,11 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban, theme }) => {
 
           <label htmlFor="name">Description</label>
           <input
-            className={errors.name?.message ? "errorInput" : "form_input_text"}
+            className={
+              errors.name?.message
+                ? "errorInput"
+                : `form_input_text form_input_text--${theme}`
+            }
             id="description"
             type="text"
             name="description"
@@ -139,7 +147,7 @@ const AddTask = ({ setNewTaskModalIsOpen, selectedKanban, theme }) => {
             {subtasks.map((value, i) => (
               <div key={i} className="sub_element_btn">
                 <input
-                  className="form_input_text"
+                  className={`form_input_text form_input_text--${theme}`}
                   id={i}
                   type="text"
                   name="column"

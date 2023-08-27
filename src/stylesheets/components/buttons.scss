@@ -6,6 +6,7 @@
   &:hover {
     background-color: $light_purple;
   }
+  @include animated_button
 }
 
 .form_secondary_button {

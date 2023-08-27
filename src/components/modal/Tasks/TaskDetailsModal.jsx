@@ -1,5 +1,4 @@
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { updateSubtask } from "../../../store/kanbanSlice";
 
@@ -17,6 +16,7 @@ const TaskDetailsModal = ({
       (task) => task.id == taskDatas.id
     )
   );
+  const theme = useSelector((state) => state.theme.currentTheme)
 
   const dispatch = useDispatch();
 
@@ -36,7 +36,7 @@ const TaskDetailsModal = ({
 
   return (
     <div className="modal_background">
-      <div className="modal_container">
+      <div className={`modal_container modal_container--${theme}`}>
         <div className="modal_content">
           <div className="form_title">
             <h2>{task?.title}</h2>
@@ -56,41 +56,68 @@ const TaskDetailsModal = ({
           </div>
           <p>{task?.description}</p>
 
-          <label htmlFor="subtasks">
-            subtasks (
-            {task.subtasks.filter((subtask) => subtask.isChecked).length} of{" "}
-            {task.subtasks.length})
-          </label>
-          <ul>
-            {task.subtasks.map((subtask, i) => (
-              <li key={i} className="checkbox_field_container">
-                <input
-                  id={subtask.id}
-                  type="checkbox"
-                  checked={subtask.isChecked}
-                  // value={subtask.isChecked}
-                  onChange={handleCheckboxe}
-                />
-                <p
-                  className={
-                    subtask.isChecked ? "substaskNameChecked" : "substaskName"
-                  }
-                >
-                  {subtask?.name} {subtask.isChecked}
-                </p>
-              </li>
-            ))}
-          </ul>
+          {task.subtasks.length ? (
+            <>
+              <label htmlFor="subtasks">
+                subtasks (
+                {task.subtasks.filter((subtask) => subtask.isChecked).length} of{" "}
+                {task.subtasks.length})
+              </label>
+              <ul>
+                {task.subtasks.map((subtask, i) => (
+                  <li
+                    key={i}
+                    className={`checkbox_field_container checkbox_field_container--${theme}`}
+                  >
+                    <input
+                      id={subtask.id}
+                      type="checkbox"
+                      checked={subtask.isChecked}
+                      // value={subtask.isChecked}
+                      onChange={handleCheckboxe}
+                    />
+                    <p
+                      className={
+                        subtask.isChecked
+                          ? "substaskNameChecked"
+                          : "substaskName"
+                      }
+                    >
+                      {subtask?.name} {subtask.isChecked}
+                    </p>
+                  </li>
+                ))}
+              </ul>
 
-  
-          <button className="form_button_submit" onClick={() => {
-             setTaskDetailsModalIsOpen((prevState) => ({
-               ...prevState,
-               columnIndex: "",
-               id: "",
-               open: false,
-             }));
-          }}>Update Task</button>
+              <button
+                className="form_button_submit"
+                onClick={() => {
+                  setTaskDetailsModalIsOpen((prevState) => ({
+                    ...prevState,
+                    columnIndex: "",
+                    id: "",
+                    open: false,
+                  }));
+                }}
+              >
+                Update Task
+              </button>
+            </>
+          ) : (
+            <button
+              className="form_button_submit"
+              onClick={() => {
+                setTaskDetailsModalIsOpen((prevState) => ({
+                  ...prevState,
+                  columnIndex: "",
+                  id: "",
+                  open: false,
+                }));
+              }}
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
     </div>
