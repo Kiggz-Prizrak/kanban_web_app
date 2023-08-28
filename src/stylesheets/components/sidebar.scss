@@ -1,11 +1,13 @@
-aside {
+.sidebar_container {
   max-width: 300px;
-  width: 100%;
+  object-fit: contain;
   // position: fixed;
   // height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  object-fit: cover;
+  overflow: hidden;
 
   h2 {
     font-size: 12px;
@@ -16,6 +18,35 @@ aside {
     color: $medium_grey;
     margin-left: 30px;
   }
+}
+
+@keyframes openAside {
+  0% {
+    width: 0%;
+  }
+  70% {
+    width: 100%;
+  }
+}
+
+@keyframes closeAside {
+  0% {
+    width: 100%;
+  }
+  70% {
+    width: 0%;
+  }
+}
+
+.sidebar_container--opened {
+  animation: 1.5s openAside forwards;
+  width: 100%;
+}
+.sidebar_container--closed {
+  animation: 0.7s closeAside forwards;
+  z-index: 1;
+
+  width: 0%;
 }
 .sidebar_logo {
   max-height: 96px;
@@ -100,4 +131,14 @@ aside {
   span {
     margin-right: 10px;
   }
+}
+
+.sidebar_show_button {
+  position: absolute;
+  bottom: 10%;
+  border-radius: 0px 100px 100px 0px;
+  background-color: $main_purple;
+  width: 56px;
+  height: 48px;
+  flex-shrink: 0;
 }
