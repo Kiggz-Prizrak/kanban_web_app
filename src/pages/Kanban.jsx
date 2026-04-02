@@ -1,161 +1,171 @@
+import { useLoaderData } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useState, useRef, useCallback } from "react";
+
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import KanbanBoard from "../components/KanbanBoard";
-import { useSelector } from "react-redux";
-import { useState } from "react";
 
 import AddBoard from "../components/modal/board/AddBoard";
+import EditBoard from "../components/modal/board/EditBoard";
+import DeleteBoard from "../components/modal/board/DeleteBoard";
 import AddColumn from "../components/modal/columns/AddColums";
 import AddTask from "../components/modal/tasks/AddTask";
 import DeleteTask from "../components/modal/tasks/DeleteTask";
 import TaskEditor from "../components/modal/tasks/TaskEditor";
-import EditBoard from "../components/modal/board/EditBoard";
 import TaskDetailsModal from "../components/modal/Tasks/TaskDetailsModal";
-import DeleteBoard from "../components/modal/board/DeleteBoard";
-
-// import datas from "/public/mock/data";
 
 const Kanban = () => {
-  const [selectedKanban, setSelectedKanban] = useState(0);
+  const userBoards = useLoaderData();
+  const theme = useSelector((state) => state.theme.currentTheme);
+
+  const kanbanBoardRef = useRef(null);
+
+  const handleBoardRefresh = useCallback(() => {
+    kanbanBoardRef.current?.fetchBoard();
+  }, []);
+
+  const [selectedBoardId, setSelectedBoardId] = useState(
+    userBoards?.[0]?.board?.id ?? null,
+  );
+
   const [newBoardModalIsOpen, setNewBoardModalIsOpen] = useState(false);
   const [editBoardModalIsOpen, setEditBoardModalIsOpen] = useState(false);
   const [deleteBoardModalIsOpen, setDeleteBoardModalIsOpen] = useState(false);
-
   const [newColumnModalIsOpen, setNewColumnModalIsOpen] = useState(false);
-
   const [newTaskModalIsOpen, setNewTaskModalIsOpen] = useState(false);
-  const [editTaskModalIsOpen, setEditTaskModalIsOpen] = useState({
-    columnIndex: "",
-    id: "",
-    selectedKanban,
+
+  const [editTaskModal, setEditTaskModal] = useState({
     open: false,
-  });
-  const [deleteTaskModalIsOpen, setDeleteTaskModalIsOpen] = useState({
-    columnIndex: "",
-    id: "",
-    selectedKanban,
-    open: false,
-  });
-  const [taskDetailsModalIsOpen, setTaskDetailsModalIsOpen] = useState({
-    columnIndex: "",
-    id: "",
-    selectedKanban,
-    open: false,
+    taskId: null,
+    columnId: null,
   });
 
-  const kanbansList = useSelector((state) => state.kanbans);
-  const theme = useSelector((state) => state.theme.currentTheme);
+  const [deleteTaskModal, setDeleteTaskModal] = useState({
+    open: false,
+    taskId: null,
+    columnId: null,
+  });
 
-  // console.log(kanbansList[selectedKanban]);
-  // console.log(editTaskModalIsOpen);
+  const [taskDetailsModal, setTaskDetailsModal] = useState({
+    open: false,
+    taskId: null,
+    columnId: null,
+  });
+
+  const currentMembership = userBoards?.find(
+    (ub) => ub.board?.id === selectedBoardId,
+  );
+
+  const isAdmin = currentMembership?.role === "admin";
+  const selectedBoardName = currentMembership?.board?.name ?? "";
+
+  // userBoards ne contient pas forcément les colonnes complètes,
+  // donc on évite de dépendre de board.columns ici pour ne pas recréer un bug.
+  const hasBoardSelected = Boolean(selectedBoardId);
 
   return (
     <div className={`main_container main_container--${theme}`}>
       <Sidebar
-        selectedKanban={selectedKanban}
+        selectedBoardId={selectedBoardId}
+        setSelectedBoardId={setSelectedBoardId}
         setNewBoardModalIsOpen={setNewBoardModalIsOpen}
-        setSelectedKanban={setSelectedKanban}
-        kanbansList={kanbansList}
+        userBoards={userBoards}
       />
+
       <div className="kanban_page_container">
         <Header
-          selectedKanban={selectedKanban}
-          kanbanTitle={kanbansList[selectedKanban]?.board}
+          boardName={selectedBoardName}
+          hasColumns={hasBoardSelected}
           setNewTaskModalIsOpen={setNewTaskModalIsOpen}
           setEditBoardModalIsOpen={setEditBoardModalIsOpen}
           setDeleteBoardModalIsOpen={setDeleteBoardModalIsOpen}
+          isAdmin={isAdmin}
         />
-        {kanbansList.length ? (
+
+        {selectedBoardId && (
           <KanbanBoard
+            ref={kanbanBoardRef}
+            boardId={selectedBoardId}
+            isAdmin={isAdmin}
             setNewColumnModalIsOpen={setNewColumnModalIsOpen}
-            newColumnModalIsOpen={newColumnModalIsOpen}
-            selectedKanban={selectedKanban}
-            setEditTaskModalIsOpen={setEditTaskModalIsOpen}
-            setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
-            setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
+            setEditTaskModal={setEditTaskModal}
+            setDeleteTaskModal={setDeleteTaskModal}
+            setTaskDetailsModal={setTaskDetailsModal}
           />
-        ) : (
-          ""
         )}
       </div>
 
-      {/* ======= modal section ======= */}
-
-      {newBoardModalIsOpen ? (
+      {newBoardModalIsOpen && (
         <AddBoard
           setAddBoardModalIsOpen={setNewBoardModalIsOpen}
+          setSelectedBoardId={setSelectedBoardId}
           theme={theme}
         />
-      ) : (
-        ""
       )}
 
-      {editBoardModalIsOpen ? (
+      {editBoardModalIsOpen && selectedBoardId && (
         <EditBoard
           setEditBoardModalIsOpen={setEditBoardModalIsOpen}
-          selectedKanban={selectedKanban}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
           theme={theme}
         />
-      ) : (
-        ""
-      )}
-      {deleteBoardModalIsOpen ? (
-        <DeleteBoard
-          setDeleteBoardModalIsOpen={setDeleteBoardModalIsOpen}
-          selectedKanban={selectedKanban}
-          setSelectedKanban={setSelectedKanban}
-          theme={theme}
-        />
-      ) : (
-        ""
       )}
 
-      {newColumnModalIsOpen ? (
+      {deleteBoardModalIsOpen && selectedBoardId && (
+        <DeleteBoard
+          setDeleteBoardModalIsOpen={setDeleteBoardModalIsOpen}
+          boardId={selectedBoardId}
+          setSelectedBoardId={setSelectedBoardId}
+          userBoards={userBoards}
+          theme={theme}
+        />
+      )}
+
+      {newColumnModalIsOpen && selectedBoardId && (
         <AddColumn
           setNewColumnModalIsOpen={setNewColumnModalIsOpen}
-          selectedKanban={selectedKanban}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
           theme={theme}
         />
-      ) : (
-        ""
       )}
-      {newTaskModalIsOpen ? (
+
+      {newTaskModalIsOpen && selectedBoardId && (
         <AddTask
           setNewTaskModalIsOpen={setNewTaskModalIsOpen}
-          selectedKanban={selectedKanban}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
           theme={theme}
         />
-      ) : (
-        ""
       )}
-      {deleteTaskModalIsOpen.open ? (
+
+      {deleteTaskModal.open && (
         <DeleteTask
-          setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
-          deleteTaskModalIsOpen={deleteTaskModalIsOpen}
-          theme={theme}
+          setDeleteTaskModal={setDeleteTaskModal}
+          deleteTaskModal={deleteTaskModal}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
         />
-      ) : (
-        ""
       )}
-      {taskDetailsModalIsOpen.open ? (
+
+      {taskDetailsModal.open && (
         <TaskDetailsModal
-          selectedKanban={selectedKanban}
-          taskDatas={taskDetailsModalIsOpen}
-          setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
-          theme={theme}
+          taskDetailsModal={taskDetailsModal}
+          setTaskDetailsModal={setTaskDetailsModal}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
         />
-      ) : (
-        ""
       )}
-      {editTaskModalIsOpen.open ? (
+
+      {editTaskModal.open && (
         <TaskEditor
-          selectedKanban={selectedKanban}
-          taskDatas={editTaskModalIsOpen}
-          setEditTaskModalIsOpen={setEditTaskModalIsOpen}
-          theme={theme}
+          editTaskModal={editTaskModal}
+          setEditTaskModal={setEditTaskModal}
+          boardId={selectedBoardId}
+          onBoardRefresh={handleBoardRefresh}
         />
-      ) : (
-        ""
       )}
     </div>
   );

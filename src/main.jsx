@@ -10,10 +10,10 @@ import "./stylesheets/main.scss";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <React.StrictMode>
+    {/* <React.StrictMode> */}
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
-    </React.StrictMode>
+    {/* </React.StrictMode> */}
   </Provider>,
 );

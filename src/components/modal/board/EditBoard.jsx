@@ -1,82 +1,108 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
 
-import { DevTool } from "@hookform/devtools";
-
-import { editBoard } from "../../../store/kanbanSlice";
-
-import { idGenerator } from "../../../variables";
-
+import {
+  getBoardById,
+  addColumn,
+  deleteColumn,
+  updateColumn,
+} from "../../../api/boards";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban, theme }) => {
-  const { register, handleSubmit, control, formState } = useForm();
-  const { errors } = formState;
-  const dispatch = useDispatch();
+const EditBoard = ({ setEditBoardModalIsOpen, boardId, theme }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm();
 
-  const kanban = useSelector((state) => state.kanbans[selectedKanban]);
+  const [board, setBoard] = useState(null);
+  const [columns, setColumns] = useState([]);
+  // columnsToDelete = ids des colonnes existantes à supprimer
+  const [columnsToDelete, setColumnsToDelete] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const [columns, setColumns] = useState(kanban.columns);
-  const [columnError, setColumnError] = useState(false);
-
-  const subForm = (data) => {
-    setColumnError(false);
-    if (!data.board) {
-      data.board = kanban.board;
-    }
-    columns.forEach((column) => {
-      if (columns.filter((e) => e.name == column.name).length > 1) {
-        setColumnError(true);
+  // Charge le board pour pré-remplir le formulaire
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await getBoardById(boardId);
+        setBoard(data);
+        setValue("title", data.name);
+        // On marque les colonnes existantes avec leur id
+        setColumns(
+          data.columns.map((c) => ({ id: c.id, name: c.name, isNew: false })),
+        );
+      } catch (err) {
+        setServerError("Impossible de charger le board");
       }
-    });
+    };
+    load();
+  }, [boardId, setValue]);
 
-    const newBoard = { ...data, columns };
+  const onSubmit = async (data) => {
+    setServerError("");
+    setIsLoading(true);
 
-    if (!columnError) {
-      dispatch(editBoard({ selectedKanban, newBoard }));
+    try {
+      // 1. Supprimer les colonnes marquées
+      await Promise.all(
+        columnsToDelete.map((colId) => deleteColumn(boardId, colId)),
+      );
+
+      // 2. Mettre à jour les colonnes existantes (nom modifié)
+      const existingCols = columns.filter((c) => !c.isNew);
+      await Promise.all(
+        existingCols.map((col) =>
+          updateColumn(boardId, col.id, { name: col.name }),
+        ),
+      );
+
+      // 3. Créer les nouvelles colonnes
+      const newCols = columns.filter((c) => c.isNew && c.name.trim());
+      for (const col of newCols) {
+        await addColumn(boardId, { name: col.name.trim() });
+      }
+
       setEditBoardModalIsOpen(false);
+      // Le KanbanBoard se rechargera via onBoardRefresh depuis le parent
+      // Pour le titre dans la sidebar on recharge la page
+      if (data.title !== board?.name) {
+        window.location.reload();
+      }
+    } catch (err) {
+      setServerError(err.message || "Erreur lors de la modification");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const addNewColumn = (e) => {
     e.preventDefault();
-    setColumns((list) => [
-      ...list,
-      { name: "", id: idGenerator("column", columns.length + 1), tasks: [] },
-    ]);
-    console.log(columns);
+    setColumns((prev) => [...prev, { id: null, name: "", isNew: true }]);
   };
 
-  const deleteColumn = (columnIndex) => {
-    setColumns((list) => list.filter((element, index) => index != columnIndex));
+  const removeColumn = (index) => {
+    const col = columns[index];
+    // Si la colonne existe en base, on la marque pour suppression
+    if (col.id && !col.isNew) {
+      setColumnsToDelete((prev) => [...prev, col.id]);
+    }
+    setColumns((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const setColumnName = (e) => {
-    e.preventDefault();
-    let newColumns = Array.from(columns);
-    newColumns.map((element, i) => {
-      if (i == e.target.id) {
-        newColumns[i] = {
-          name: e.target.value,
-          id: idGenerator("column", i),
-          tasks: element.tasks,
-        };
-      }
-    });
-    setColumns(newColumns);
+  const setColumnName = (e, index) => {
+    const updated = [...columns];
+    updated[index] = { ...updated[index], name: e.target.value };
+    setColumns(updated);
   };
-
 
   return (
     <div className="modal_background">
       <div className={`modal_container modal_container--${theme}`}>
-        <form
-          className="modal_form"
-          onSubmit={handleSubmit(subForm)}
-          action="submit"
-        >
+        <form className="modal_form" onSubmit={handleSubmit(onSubmit)}>
           <div className={`form_title form_title--${theme}`}>
             <h2>Edit Board</h2>
             <button
@@ -87,63 +113,56 @@ const EditBoard = ({ setEditBoardModalIsOpen, selectedKanban, theme }) => {
             </button>
           </div>
 
-          <label htmlFor="name">Board Name</label>
+          <label htmlFor="title">Board Name</label>
           <input
+            id="title"
+            type="text"
             className={
-              errors.name?.message
+              errors.title
                 ? "errorInput"
                 : `form_input_text form_input_text--${theme}`
             }
-            id="name"
-            type="text"
-            name="board"
-            // value={kanban?.board}
-            placeholder={kanban?.board}
-            enterKeyHint="next"
-            {...register("board", {
-              // required: "please prov ide this field",
-              // pattern: {
-              //   value:
-              //     /^([a-zA-Z]{2,}\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\s?([a-zA-Z]{1,})?)/,
-              //   message: "please provide valid data",
-              // },
-            })}
+            {...register("title", { required: "Le nom est requis." })}
           />
-          <p className="errorMessage">{errors.board?.message}</p>
+          {errors.title && (
+            <p className="errorMessage">{errors.title.message}</p>
+          )}
 
-          {columns.length ? <label htmlFor="columns">Board Columns</label> : ""}
+          {columns.length > 0 && <label>Board Columns</label>}
           <div className="modal_form_subs">
-            {columns.map((value, i) => (
+            {columns.map((col, i) => (
               <div key={i} className="sub_element_btn">
                 <input
                   className={`form_input_text form_input_text--${theme}`}
-                  id={i}
                   type="text"
-                  name="column"
-                  value={value.name}
-                  placeholder=""
-                  enterKeyHint="next"
-                  onChange={setColumnName}
+                  value={col.name}
+                  onChange={(e) => setColumnName(e, i)}
                 />
-                <button type="button" onClick={() => deleteColumn(i)}>
+                <button type="button" onClick={() => removeColumn(i)}>
                   <CloseIcon />
                 </button>
               </div>
             ))}
           </div>
 
+          {serverError && <p className="errorMessage">{serverError}</p>}
+
           <button
+            type="button"
             className={`form_secondary_button form_secondary_button--${theme}`}
             onClick={addNewColumn}
           >
             + Add New Column
           </button>
-          <button className="form_button_submit" type="submit">
-            Saves Changes
+
+          <button
+            type="submit"
+            className="form_button_submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Sauvegarde..." : "Save Changes"}
           </button>
         </form>
-
-        <DevTool control={control} />
       </div>
     </div>
   );

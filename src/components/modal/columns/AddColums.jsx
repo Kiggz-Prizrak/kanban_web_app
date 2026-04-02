@@ -1,99 +1,79 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
 
-import { idGenerator } from "../../../variables";
-
-import { DevTool } from "@hookform/devtools";
-
-import { addNewColumn } from "../../../store/kanbanSlice";
-
+import { addColumn } from "../../../api/boards";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-const AddColumn = ({ setNewColumnModalIsOpen, selectedKanban, theme }) => {
-  const { register, handleSubmit, control, formState } = useForm();
-  const { errors } = formState;
-  const dispatch = useDispatch();
+const AddColumn = ({
+  setNewColumnModalIsOpen,
+  boardId,
+  onBoardRefresh,
+  theme,
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const datas = useSelector((state) => state.kanbans[selectedKanban]);
+  const onSubmit = async (data) => {
+    setServerError("");
+    setIsLoading(true);
 
-  const [columnError, setColumnError] = useState(false);
-
-  const subForm = (data) => {
-    console.log(data);
-    if (!datas.columns.map((e) => e.name).includes(data.column)) {
-      console.log("error");
-      setColumnError(false);
-
-      dispatch(
-        addNewColumn({
-          index: selectedKanban,
-
-          newColumn: {
-            name: data.column,
-            id: idGenerator("column", datas.columns.length + (1).length + 1),
-            tasks: [],
-          },
-        })
-      );
+    try {
+      await addColumn(boardId, { name: data.name.trim() });
       setNewColumnModalIsOpen(false);
-    } else {
-      setColumnError(true);
+      onBoardRefresh?.();
+    } catch (err) {
+      setServerError(err.message || "Erreur lors de la création de la colonne");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="modal_background">
-        <div className={`modal_container modal_container--${theme}`}>
-          <form
-            className="modal_form"
-            onSubmit={handleSubmit(subForm)}
-            action="submit"
-          >
-            <div className={`form_title form_title--${theme}`}>
-              <h2>Add New Column</h2>
-              <button
-                type="button"
-                onClick={() => setNewColumnModalIsOpen(false)}
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            <label htmlFor="name">Columns Name</label>
-            <input
-              className={
-                errors.name?.message
-                  ? "errorInput"
-                  : `form_input_text form_input_text--${theme}`
-              }
-              id="name"
-              type="text"
-              name="column"
-              placeholder="Board name"
-              enterKeyHint="next"
-              {...register("column", {
-                // required: "please prov ide this field",
-                // pattern: {
-                //   value:
-                //     /^([a-zA-Z]{2,}\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\s?([a-zA-Z]{1,})?)/,
-                //   message: "please provide valid data",
-                // },
-              })}
-            />
-            <p className="errorMessage">
-              {errors.board?.message}
-              {columnError ? "Duplicate column" : ""}
-            </p>
-            <button className="form_button_submit" type="submit">
-              Create New Column
+    <div className="modal_background">
+      <div className={`modal_container modal_container--${theme}`}>
+        <form className="modal_form" onSubmit={handleSubmit(onSubmit)}>
+          <div className={`form_title form_title--${theme}`}>
+            <h2>Add New Column</h2>
+            <button
+              type="button"
+              onClick={() => setNewColumnModalIsOpen(false)}
+            >
+              <CloseIcon />
             </button>
-          </form>
-        </div>
+          </div>
+
+          <label htmlFor="name">Column Name</label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Ex: In Review"
+            className={
+              errors.name
+                ? "errorInput"
+                : `form_input_text form_input_text--${theme}`
+            }
+            {...register("name", {
+              required: "Le nom de la colonne est requis.",
+            })}
+          />
+          {errors.name && <p className="errorMessage">{errors.name.message}</p>}
+          {serverError && <p className="errorMessage">{serverError}</p>}
+
+          <button
+            type="submit"
+            className="form_button_submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Création..." : "Create New Column"}
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 

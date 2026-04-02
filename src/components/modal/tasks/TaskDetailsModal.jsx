@@ -1,123 +1,144 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
-import { updateSubtask } from "../../../store/kanbanSlice";
-
+import { getBoardById, updateTask } from "../../../api/boards";
 import CloseIcon from "../../../assets/icons/CloseIcon";
-import ArrowIcon from "../../../assets/icons/ArrowIcon";
 
 const TaskDetailsModal = ({
-  setTaskDetailsModalIsOpen,
-  selectedKanban,
-  taskDatas,
+  taskDetailsModal,
+  setTaskDetailsModal,
+  boardId,
+  onBoardRefresh,
 }) => {
+  const theme = useSelector((state) => state.theme.currentTheme);
 
-  const task = useSelector((state) =>
-    state.kanbans[selectedKanban].columns[taskDatas.columnIndex].tasks.find(
-      (task) => task.id == taskDatas.id
-    )
-  );
-  const theme = useSelector((state) => state.theme.currentTheme)
+  const [task, setTask] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const dispatch = useDispatch();
+  const close = () =>
+    setTaskDetailsModal({ open: false, taskId: null, columnId: null });
 
-  const handleCheckboxe = (e) => {
-    console.log(e.target.checked);
-    console.log(e.target.id);
-    dispatch(
-      updateSubtask({
-        subtaskId: e.target.id,
-        taskId: task.id,
-        selectedKanban,
-        isChecked: e.target.checked,
-        columnIndex: taskDatas.columnIndex,
-      })
+  // Charge la tâche depuis le board
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const board = await getBoardById(boardId);
+        const col = board.columns.find(
+          (c) => c.id === taskDetailsModal.columnId,
+        );
+        const found = col?.tasks.find((t) => t.id === taskDetailsModal.taskId);
+        setTask(found ?? null);
+      } catch {
+        setServerError("Impossible de charger la tâche");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [boardId, taskDetailsModal.taskId, taskDetailsModal.columnId]);
+
+  // Toggle une sous-tâche et sauvegarde immédiatement
+  const handleSubtaskToggle = async (subtaskId, currentValue) => {
+    if (!task) return;
+
+    // Mise à jour optimiste locale
+    const updatedSubtasks = task.substasks.map((s) =>
+      s.id === subtaskId ? { ...s, isCompleted: !currentValue } : s,
     );
+    setTask((prev) => ({ ...prev, substasks: updatedSubtasks }));
+
+    setIsSaving(true);
+    try {
+      await updateTask(boardId, taskDetailsModal.columnId, task.id, {
+        subtasks: updatedSubtasks.map((s) => ({
+          id: s.id,
+          title: s.title,
+          isCompleted: s.isCompleted,
+        })),
+      });
+      onBoardRefresh?.();
+    } catch (err) {
+      setServerError(err.message || "Erreur lors de la mise à jour");
+      // Rollback
+      setTask((prev) => ({
+        ...prev,
+        substasks: task.substasks,
+      }));
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="modal_background">
+        <div className={`modal_container modal_container--${theme}`}>
+          <p>Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!task) return null;
+
+  const completedCount =
+    task.substasks?.filter((s) => s.isCompleted).length ?? 0;
+  const totalCount = task.substasks?.length ?? 0;
 
   return (
     <div className="modal_background">
       <div className={`modal_container modal_container--${theme}`}>
         <div className="modal_content">
           <div className="form_title">
-            <h2>{task?.title}</h2>
-            <button
-              type="button"
-              onClick={() =>
-                setTaskDetailsModalIsOpen((prevState) => ({
-                  ...prevState,
-                  columnIndex: "",
-                  id: "",
-                  open: false,
-                }))
-              }
-            >
+            <h2>{task.title}</h2>
+            <button type="button" onClick={close}>
               <CloseIcon />
             </button>
           </div>
-          <p>{task?.description}</p>
 
-          {task.subtasks.length ? (
+          <p>{task.description}</p>
+
+          {totalCount > 0 && (
             <>
-              <label htmlFor="subtasks">
-                subtasks (
-                {task.subtasks.filter((subtask) => subtask.isChecked).length} of{" "}
-                {task.subtasks.length})
+              <label>
+                Subtasks ({completedCount} of {totalCount})
               </label>
               <ul>
-                {task.subtasks.map((subtask, i) => (
+                {task.substasks.map((subtask) => (
                   <li
-                    key={i}
+                    key={subtask.id}
                     className={`checkbox_field_container checkbox_field_container--${theme}`}
                   >
                     <input
-                      id={subtask.id}
                       type="checkbox"
-                      checked={subtask.isChecked}
-                      // value={subtask.isChecked}
-                      onChange={handleCheckboxe}
+                      checked={subtask.isCompleted}
+                      disabled={isSaving}
+                      onChange={() =>
+                        handleSubtaskToggle(subtask.id, subtask.isCompleted)
+                      }
                     />
                     <p
                       className={
-                        subtask.isChecked
+                        subtask.isCompleted
                           ? "substaskNameChecked"
                           : "substaskName"
                       }
                     >
-                      {subtask?.name} {subtask.isChecked}
+                      {subtask.title}
                     </p>
                   </li>
                 ))}
               </ul>
-
-              <button
-                className="form_button_submit"
-                onClick={() => {
-                  setTaskDetailsModalIsOpen((prevState) => ({
-                    ...prevState,
-                    columnIndex: "",
-                    id: "",
-                    open: false,
-                  }));
-                }}
-              >
-                Update Task
-              </button>
             </>
-          ) : (
-            <button
-              className="form_button_submit"
-              onClick={() => {
-                setTaskDetailsModalIsOpen((prevState) => ({
-                  ...prevState,
-                  columnIndex: "",
-                  id: "",
-                  open: false,
-                }));
-              }}
-            >
-              Close
-            </button>
           )}
+
+          {serverError && <p className="errorMessage">{serverError}</p>}
+
+          <button className="form_button_submit" onClick={close}>
+            Close
+          </button>
         </div>
       </div>
     </div>

@@ -1,16 +1,16 @@
+import { Droppable } from "react-beautiful-dnd";
 import TaskCard from "./TaskCard";
 import Round from "../assets/icons/Round";
-import { Droppable } from "react-beautiful-dnd";
 
 const BoardColumn = ({
   column,
-  tasks,
-  color,
-  setEditTaskModalIsOpen,
-  setDeleteTaskModalIsOpen,
-  setTaskDetailsModalIsOpen,
   columnIndex,
-  columnId,
+  boardId,
+  isAdmin,
+  setEditTaskModal,
+  setDeleteTaskModal,
+  setTaskDetailsModal,
+  onBoardRefresh,
 }) => {
   return (
     <div className="board_column_container">
@@ -18,25 +18,28 @@ const BoardColumn = ({
         <span>
           <Round color="#8471F2" />
         </span>
-        {column} {tasks.length ? `(${tasks.length})` : ""}
+        {column.name} {column.tasks.length ? `(${column.tasks.length})` : ""}
       </h3>
-      <Droppable droppableId={columnId}>
+
+      <Droppable droppableId={String(column.id)}>
         {(provider) => (
           <div
             {...provider.droppableProps}
             className="board_column"
             ref={provider.innerRef}
           >
-            {tasks?.map((task, index) => (
+            {column.tasks.map((task, index) => (
               <TaskCard
-                // key={task.index}
-                setDeleteTaskModalIsOpen={setDeleteTaskModalIsOpen}
-                setEditTaskModalIsOpen={setEditTaskModalIsOpen}
-                setTaskDetailsModalIsOpen={setTaskDetailsModalIsOpen}
-                key={index}
+                key={task.id}
                 task={task}
                 index={index}
-                columnIndex={columnIndex}
+                columnId={column.id}
+                boardId={boardId}
+                isAdmin={isAdmin}
+                setEditTaskModal={setEditTaskModal}
+                setDeleteTaskModal={setDeleteTaskModal}
+                setTaskDetailsModal={setTaskDetailsModal}
+                onBoardRefresh={onBoardRefresh}
               />
             ))}
             {provider.placeholder}

@@ -1,76 +1,66 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { DevTool } from "@hookform/devtools";
-import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { addNewBoard } from "../../../store/kanbanSlice";
-
-import { useSelector } from "react-redux";
-
+import { createBoard } from "../../../api/boards";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-import { idGenerator } from "../../../variables";
-
-const AddBoard = ({ setAddBoardModalIsOpen, theme }) => {
-  console.log(idGenerator("board"));
-
-  const { register, handleSubmit, control, formState } = useForm();
-  const { errors } = formState;
-  const dispatch = useDispatch();
+const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
 
   const [columns, setColumns] = useState([]);
-  const [errorTitle, setErrorTitle] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const kanbansList = useSelector((state) => state.kanbans);
+  const onSubmit = async (data) => {
+    setServerError("");
+    setIsLoading(true);
 
-  const subForm = (data) => {
-    setErrorTitle(false);
+    try {
+      // columns = tableau de strings (noms)
+      const columnNames = columns.map((c) => c.name.trim()).filter(Boolean);
 
-    if (!kanbansList.map((e) => e.board).includes(data.board)) {
-      dispatch(addNewBoard({ ...data, id: idGenerator("board"), columns }));
-      setAddBoardModalIsOpen(false);
-    } else {
-      setErrorTitle(true);
+      const result = await createBoard({
+        title: data.title,
+        columns: columnNames,
+      });
+
+      // result.board = id du nouveau board
+      setSelectedBoardId(result.board);
+
+      // Recharge le loader pour mettre à jour la sidebar
+      navigate(0);
+    } catch (err) {
+      setServerError(err.message || "Erreur lors de la création du board");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addNewColumn = (e) => {
+  const addColumn = (e) => {
     e.preventDefault();
-    setColumns((list) => [
-      ...list,
-      { name: "", id: idGenerator("column", columns.length + 1), taks: [] },
-    ]);
-    console.log(columns);
+    setColumns((prev) => [...prev, { name: "" }]);
   };
 
-  const deleteColumn = (columnIndex) => {
-    setColumns((list) => list.filter((element, index) => index != columnIndex));
+  const removeColumn = (index) => {
+    setColumns((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const setColumnName = (e) => {
-    e.preventDefault();
-    let newColumns = Array.from(columns);
-    newColumns.map((_, i) => {
-      if (i == e.target.id) {
-        newColumns[i] = {
-          name: e.target.value,
-          id: idGenerator("column", i),
-          tasks: [],
-        };
-      }
-    });
+  const setColumnName = (e, index) => {
+    const newColumns = [...columns];
+    newColumns[index] = { name: e.target.value };
     setColumns(newColumns);
   };
 
   return (
     <div className="modal_background">
       <div className={`modal_container modal_container--${theme}`}>
-        <form
-          className="modal_form"
-          // onSubmit={(e) => handleSubmit(e)}
-          onSubmit={handleSubmit(subForm)}
-          action="submit"
-        >
+        <form className="modal_form" onSubmit={handleSubmit(onSubmit)}>
           <div className={`form_title form_title--${theme}`}>
             <h2>Add New Board</h2>
             <button type="button" onClick={() => setAddBoardModalIsOpen(false)}>
@@ -78,62 +68,58 @@ const AddBoard = ({ setAddBoardModalIsOpen, theme }) => {
             </button>
           </div>
 
-          <label htmlFor="name">Board Name</label>
+          <label htmlFor="title">Board Name</label>
           <input
+            id="title"
+            type="text"
+            placeholder="Ex: Marketing"
             className={
-              errors.name?.message
+              errors.title
                 ? "errorInput"
                 : `form_input_text form_input_text--${theme}`
             }
-            id="name"
-            type="text"
-            name="board"
-            placeholder="Board name"
-            enterKeyHint="next"
-            {...register("board", {
-              required: "please prov ide this field",
-            })}
+            {...register("title", { required: "Le nom du board est requis." })}
           />
-          <p className="errorMessage">{errors.board?.message}</p>
+          {errors.title && (
+            <p className="errorMessage">{errors.title.message}</p>
+          )}
 
-          {columns.length ? <label htmlFor="columns">Board Columns</label> : ""}
+          {columns.length > 0 && <label>Board Columns</label>}
           <div className="modal_form_subs">
-            {columns.map((value, i) => (
+            {columns.map((col, i) => (
               <div key={i} className="sub_element_btn">
                 <input
                   className={`form_input_text form_input_text--${theme}`}
-                  id={i}
                   type="text"
-                  name="column"
-                  // key={i}
-                  placeholder=""
-                  enterKeyHint="next"
-                  onChange={setColumnName}
+                  placeholder="Ex: Todo"
+                  value={col.name}
+                  onChange={(e) => setColumnName(e, i)}
                 />
-                <button type="button" onClick={() => deleteColumn(i)}>
+                <button type="button" onClick={() => removeColumn(i)}>
                   <CloseIcon />
                 </button>
               </div>
             ))}
           </div>
-          {errorTitle ? (
-            <p className="errorMessage">Board already Exist</p>
-          ) : (
-            ""
-          )}
+
+          {serverError && <p className="errorMessage">{serverError}</p>}
+
           <button
             type="button"
             className={`form_secondary_button form_secondary_button--${theme}`}
-            onClick={addNewColumn}
+            onClick={addColumn}
           >
             + Add New Column
           </button>
-          <button className="form_button_submit" type="submit">
-            Create New Board
+
+          <button
+            type="submit"
+            className="form_button_submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Création..." : "Create New Board"}
           </button>
         </form>
-
-        <DevTool control={control} />
       </div>
     </div>
   );

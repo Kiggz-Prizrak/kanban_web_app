@@ -1,22 +1,19 @@
+import { useState } from "react";
+import { useSelector } from "react-redux";
+
 import BoardIcon from "../assets/icons/BoardIcon";
 import Logo from "../assets/Logo";
 import EyeIcon from "../assets/icons/EyeIcon";
 import DarkmodeButton from "./DarkmodeButton";
-import { useSelector } from "react-redux";
-import { useState } from "react";
-
-
 
 const Sidebar = ({
-  selectedKanban,
-  kanbansList,
-  setSelectedKanban,
+  selectedBoardId,
+  setSelectedBoardId,
   setNewBoardModalIsOpen,
+  userBoards,
 }) => {
-
-  const theme = useSelector((state) => state.theme.currentTheme)
-const [sidebarIsOpen, setSidebarIsOpen] = useState(true)
-
+  const theme = useSelector((state) => state.theme.currentTheme);
+  const [sidebarIsOpen, setSidebarIsOpen] = useState(true);
 
   return (
     <>
@@ -25,30 +22,34 @@ const [sidebarIsOpen, setSidebarIsOpen] = useState(true)
           sidebarIsOpen ? "opened" : "closed"
         }`}
       >
-        <div className={`sidebar_logo sidebar_logo--${theme} `}>
+        <div className={`sidebar_logo sidebar_logo--${theme}`}>
           <Logo color={theme === "darkmode" ? "white" : "black"} />
         </div>
-        <div className={`sidebar_content sidebar_content--${theme} `}>
+
+        <div className={`sidebar_content sidebar_content--${theme}`}>
           <div>
-            <h2>ALL BOARDS ({kanbansList.length})</h2>
+            <h2>ALL BOARDS ({userBoards?.length ?? 0})</h2>
             <ul className="sidebar_menu">
-              {kanbansList.map((e, i) => (
-                <li key={i}>
+              {userBoards?.map((ub) => (
+                <li key={ub.board.id}>
                   <button
                     className={
-                      selectedKanban === i
+                      selectedBoardId === ub.board.id
                         ? "sidebar_kanbanLink_active"
                         : "sidebar_kanbanLink"
                     }
-                    onClick={() => setSelectedKanban(i)}
+                    onClick={() => setSelectedBoardId(ub.board.id)}
                   >
                     <BoardIcon
-                      color={selectedKanban === i ? "#FFF" : "#828FA3"}
+                      color={
+                        selectedBoardId === ub.board.id ? "#FFF" : "#828FA3"
+                      }
                     />
-                    <p>{e.board}</p>
+                    <p>{ub.board.name}</p>
                   </button>
                 </li>
               ))}
+
               <li>
                 <button
                   className="sidebar_boardCreator_btn"
@@ -60,6 +61,7 @@ const [sidebarIsOpen, setSidebarIsOpen] = useState(true)
               </li>
             </ul>
           </div>
+
           <div>
             <DarkmodeButton />
             <button
@@ -74,9 +76,8 @@ const [sidebarIsOpen, setSidebarIsOpen] = useState(true)
           </div>
         </div>
       </aside>
-      {sidebarIsOpen ? (
-        ""
-      ) : (
+
+      {!sidebarIsOpen && (
         <button
           className="sidebar_show_button"
           onClick={() => setSidebarIsOpen(true)}

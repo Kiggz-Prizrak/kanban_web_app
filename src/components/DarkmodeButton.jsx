@@ -2,14 +2,13 @@ import { useSelector } from "react-redux";
 import MoonIcon from "../assets/icons/MoonIcon";
 import SunIcon from "../assets/icons/SunIcon";
 import { useDispatch } from "react-redux";
-import { editTheme } from "../store/kanbanSlice";
+import { editTheme } from "../store/themeslice";
 
 const DarkmodeButton = () => {
   const dispatch = useDispatch();
 
   const currentTheme = useSelector((state) => state.theme.currentTheme);
   // console.log(darkMode);
-
 
   return (
     <div className={`themeButton themeButton--${currentTheme}`}>

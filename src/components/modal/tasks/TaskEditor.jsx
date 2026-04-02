@@ -1,176 +1,173 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
 
-import { editTask } from "../../../store/kanbanSlice";
-import { idGenerator } from "../../../variables";
-
-
-// import {  } from "../../../store/kanbanSlice";
-
+import { getBoardById, updateTask } from "../../../api/boards";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-const TaskEditor = ({ selectedKanban, taskDatas, setEditTaskModalIsOpen }) => {
-  const taskToEdit = useSelector((state) =>
-    state.kanbans[taskDatas.selectedKanban].columns[
-      taskDatas.columnIndex
-    ].tasks.find((task) => task.id === taskDatas.id)
-  );
-  const theme = useSelector((state) => state.theme.currentTheme)
+const TaskEditor = ({
+  editTaskModal,
+  setEditTaskModal,
+  boardId,
+  onBoardRefresh,
+}) => {
+  const theme = useSelector((state) => state.theme.currentTheme);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
 
-  const { register, handleSubmit, control, formState } = useForm();
-  const { errors } = formState;
-  const dispatch = useDispatch();
+  const [task, setTask] = useState(null);
+  const [subtasks, setSubtasks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const [taskDescription, setTaskDescription] = useState(taskDatas.description);
-  const [subtasks, setSubtasks] = useState(Array.from(taskToEdit.subtasks));
-  // const [subtaskError, setSubtaskError] = useState(false);
+  const close = () =>
+    setEditTaskModal({ open: false, taskId: null, columnId: null });
 
-  const subForm = (data) => {
-    console.log(data);
-    const newTask = {
-      title: data.title,
-      subtasks,
-      description: taskDescription,
-      ...taskDatas,
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const board = await getBoardById(boardId);
+        const col = board.columns.find((c) => c.id === editTaskModal.columnId);
+        const found = col?.tasks.find((t) => t.id === editTaskModal.taskId);
+        if (found) {
+          setTask(found);
+          setValue("title", found.title);
+          setValue("description", found.description);
+          setSubtasks(found.substasks?.map((s) => ({ ...s })) ?? []);
+        }
+      } catch {
+        setServerError("Impossible de charger la tâche");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    console.log(newTask);
-    dispatch(editTask({selectedKanban, columnIndex: taskDatas.columnIndex, newTask}));
+    load();
+  }, [boardId, editTaskModal.taskId, editTaskModal.columnId, setValue]);
+
+  const onSubmit = async (data) => {
+    setServerError("");
+    setIsSaving(true);
+
+    try {
+      await updateTask(boardId, editTaskModal.columnId, editTaskModal.taskId, {
+        title: data.title.trim(),
+        description: data.description.trim(),
+        subtasks: subtasks
+          .filter((s) => s.title?.trim())
+          .map((s) => ({
+            id: s.id ?? undefined,
+            title: s.title.trim(),
+            isCompleted: s.isCompleted ?? false,
+          })),
+      });
+
+      close();
+      onBoardRefresh?.();
+    } catch (err) {
+      setServerError(err.message || "Erreur lors de la sauvegarde");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const deleteSubtask = (id) => {
-
-    setSubtasks((list) =>
-      list.filter((item) => item.id != id)
-    );
-  };
-
-  const addNewSubtask = (e) => {
+  const addSubtask = (e) => {
     e.preventDefault();
-    setSubtasks((list) => [
-      ...list,
-      {
-        name: "",
-        id: idGenerator("subtask", subtasks.length + 1),
-        isChecked: false,
-        subtasks: [],
-      },
+    setSubtasks((prev) => [
+      ...prev,
+      { id: null, title: "", isCompleted: false },
     ]);
   };
 
-  const setDescription = (e) => {
-    e.preventDefault();
-    setTaskDescription(e.target.value);
+  const removeSubtask = (index) => {
+    setSubtasks((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const setColumnName = (e) => {
-    e.preventDefault();
-    let newSubtasks = Array.from(subtasks);
-    newSubtasks.map((element, i) => {
-      if (i == e.target.id) {
-        newSubtasks[i] = {
-          id: subtasks[i].id,
-          name: e.target.value,
-          // id: idGenerator("subtasks", i),
-          tasks: element.tasks,
-        };
-      }
-    });
-    setSubtasks(newSubtasks);
+  const setSubtaskTitle = (e, index) => {
+    const updated = [...subtasks];
+    updated[index] = { ...updated[index], title: e.target.value };
+    setSubtasks(updated);
   };
+
+  if (isLoading) {
+    return (
+      <div className="modal_background">
+        <div className={`modal_container modal_container--${theme}`}>
+          <p>Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="modal_background">
       <div className={`modal_container modal_container--${theme}`}>
-        <form
-          className="modal_form"
-          onSubmit={handleSubmit(subForm)}
-          action="submit"
-        >
+        <form className="modal_form" onSubmit={handleSubmit(onSubmit)}>
           <div className={`form_title form_title--${theme}`}>
             <h2>Edit Task</h2>
-            <button
-              type="button"
-              onClick={() =>
-                setEditTaskModalIsOpen((prevState) => ({
-                  ...prevState,
-                  columnIndex: "",
-                  id: "",
-                  open: false,
-                }))
-              }
-            >
+            <button type="button" onClick={close}>
               <CloseIcon />
             </button>
           </div>
 
-          <label htmlFor="description">title</label>
+          <label htmlFor="title">Title</label>
           <input
-            className={
-              errors.name?.message
-                ? "errorInput"
-                : "form_input_text description_field"
-            }
             id="title"
             type="text"
-            name="descTitleription"
-            // value={kanban?.board}
-            defaultValue={taskToEdit.title}
-            placeholder={taskToEdit.title}
-            enterKeyHint="next"
-            {...register("title", {
-              // required: "please prov ide this field",
-              // pattern: {
-              //   value:
-              //     /^([a-zA-Z]{2,}\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\s?([a-zA-Z]{1,})?)/,
-              //   message: "please provide valid data",
-              // },
-            })}
+            className={
+              errors.title
+                ? "errorInput"
+                : `form_input_text form_input_text--${theme}`
+            }
+            {...register("title", { required: "Le titre est requis." })}
           />
-          <p className="errorMessage">{errors.title?.message}</p>
+          {errors.title && (
+            <p className="errorMessage">{errors.title.message}</p>
+          )}
 
           <label htmlFor="description">Description</label>
           <textarea
-            onChange={setDescription}
-            className={
-              errors.name?.message
-                ? "errorInput"
-                : "form_input_text_description"
-            }
-            defaultValue={taskToEdit.description}
-            name="description"
-          ></textarea>
-          <p className="errorMessage">{errors.description?.message}</p>
+            id="description"
+            className="form_input_text_description"
+            {...register("description")}
+          />
 
-          <label htmlFor="description">Subtasks</label>
+          <label>Subtasks</label>
           <div className="modal_form_subs">
-            {subtasks.map((value, i) => (
+            {subtasks.map((sub, i) => (
               <div key={i} className="sub_element_btn">
                 <input
-                  className="form_input_text"
-                  id={value.id}
+                  className={`form_input_text form_input_text--${theme}`}
                   type="text"
-                  name="subtasks"
-                  defaultValue={value.name}
-                  placeholder={value.name}
-                  enterKeyHint="next"
-                  onChange={setColumnName}
+                  value={sub.title}
+                  onChange={(e) => setSubtaskTitle(e, i)}
                 />
-                <button type="button" onClick={() => deleteSubtask(value.id)}>
+                <button type="button" onClick={() => removeSubtask(i)}>
                   <CloseIcon />
                 </button>
               </div>
             ))}
             <button
+              type="button"
               className={`form_secondary_button form_secondary_button--${theme}`}
-              onClick={addNewSubtask}
+              onClick={addSubtask}
             >
               + Add New Subtask
             </button>
           </div>
-          <button className="form_button_submit" type="submit">
-            Saves Changes
+
+          {serverError && <p className="errorMessage">{serverError}</p>}
+
+          <button
+            type="submit"
+            className="form_button_submit"
+            disabled={isSaving}
+          >
+            {isSaving ? "Sauvegarde..." : "Save Changes"}
           </button>
         </form>
       </div>

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "react-redux";
 
-
 import CirclesOptions from "../assets/icons/CirclesOptions";
 import CloseIcon from "../assets/icons/CloseIcon";
 import EditIcon from "../assets/icons/EdditIcon";
@@ -10,26 +9,26 @@ import EditIcon from "../assets/icons/EdditIcon";
 const TaskCard = ({
   task,
   index,
-  columnIndex,
-  setEditTaskModalIsOpen,
-  setDeleteTaskModalIsOpen,
-  setTaskDetailsModalIsOpen,
+  columnId,
+  boardId,
+  isAdmin,
+  setEditTaskModal,
+  setDeleteTaskModal,
+  setTaskDetailsModal,
+  onBoardRefresh,
 }) => {
-  const substasksTotal = task.subtasks.length;
-  const substasksCompleted = task.subtasks.filter(
-    (subtask) => subtask.isChecked
-  ).length;
+  const theme = useSelector((state) => state.theme.currentTheme);
+  const [optionIsOpen, setOptionIsOpen] = useState(false);
 
-  const theme = useSelector((state) => state.theme.currentTheme)
-
-  // console.log(task)
-  const [OptionIsOpen, setOptionIsOpen] = useState(false);
+  // substasks est le nom du champ retourné par ton back (typo conservée)
+  const subtasksTotal = task.substasks?.length ?? 0;
+  const subtasksCompleted =
+    task.substasks?.filter((s) => s.isCompleted).length ?? 0;
 
   return (
-    <Draggable key={task.id} draggableId={task.id} index={index}>
+    <Draggable draggableId={String(task.id)} index={index}>
       {(provided) => (
         <div
-          key={`task-${index}`}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
@@ -39,59 +38,54 @@ const TaskCard = ({
             <button
               className={`task_button_title task_button_title--${theme}`}
               onClick={() =>
-                setTaskDetailsModalIsOpen((prevState) => ({
-                  ...prevState,
-                  columnIndex,
-                  id: task.id,
+                setTaskDetailsModal({
                   open: true,
-                }))
+                  taskId: task.id,
+                  columnId,
+                })
               }
             >
               <h4>{task.title}</h4>
             </button>
-            {substasksTotal ? (
+
+            {subtasksTotal > 0 && (
               <p>
-                {substasksCompleted} of {substasksTotal} substasks
+                {subtasksCompleted} of {subtasksTotal} subtasks
               </p>
-            ) : (
-              ""
             )}
           </div>
-          {OptionIsOpen ? (
-            <>
-              <div className={`task_option task_option--${theme}`}>
+
+          {optionIsOpen ? (
+            <div className={`task_option task_option--${theme}`}>
+              <button
+                onClick={() => {
+                  setEditTaskModal({ open: true, taskId: task.id, columnId });
+                  setOptionIsOpen(false);
+                }}
+              >
+                <EditIcon />
+              </button>
+              {isAdmin && (
                 <button
-                  onClick={() =>
-                    setEditTaskModalIsOpen((prevState) => ({
-                      ...prevState,
-                      columnIndex,
-                      id: task.id,
+                  onClick={() => {
+                    setDeleteTaskModal({
                       open: true,
-                    }))
-                  }
-                >
-                  <EditIcon />
-                </button>
-                <button
-                  onClick={() =>
-                    setDeleteTaskModalIsOpen((prevState) => ({
-                      ...prevState,
-                      columnIndex,
-                      id: task.id,
-                      open: true,
-                    }))
-                  }
+                      taskId: task.id,
+                      columnId,
+                    });
+                    setOptionIsOpen(false);
+                  }}
                 >
                   <CloseIcon />
                 </button>
-                <button
-                  className="task_option_button_closer"
-                  onClick={() => setOptionIsOpen(false)}
-                >
-                  <CirclesOptions />
-                </button>
-              </div>
-            </>
+              )}
+              <button
+                className="task_option_button_closer"
+                onClick={() => setOptionIsOpen(false)}
+              >
+                <CirclesOptions />
+              </button>
+            </div>
           ) : (
             <button onClick={() => setOptionIsOpen(true)}>
               <CirclesOptions />
