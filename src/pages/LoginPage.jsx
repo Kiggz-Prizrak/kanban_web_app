@@ -37,7 +37,7 @@ const LoginPage = () => {
 
   return (
     <main className={`main_container main_container--${theme}`}>
-      <section className="auth_card modal_container modal_container--darkmode">
+      <section className=" auth_container auth_card modal_container modal_container--darkmode">
         <div className="auth_card_content">
           <div className="auth_header">
             <h1>Connexion</h1>
