@@ -1,27 +1,14 @@
 @charset "UTF-8";
 
-@import
-  'abstracts/variables',
-  'abstracts/mixins';
+@import "abstracts/variables", "abstracts/mixins";
 
-@import
-  'base/base',
-  'base/fonts';
+@import "base/base", "base/fonts";
 
-  @import
-  'components/buttons',
-  'components/header',
-  'components/sidebar',
-  'components/boardContainer',
-  'components/boardColumn',
-  'components/kanbanBoard',
-  'components/boardTask',
-  'components/darkmodeButton',
-  'components/modal';
+@import "components/buttons", "components/header", "components/sidebar",
+  "components/boardContainer", "components/boardColumn",
+  "components/kanbanBoard", "components/boardTask", "components/darkmodeButton",
+  "components/modal", "components/members";
 
+@import "layout/body";
 
-  @import
-  'layout/body';
-
-  @import
-  'pages/kanban';
+@import "pages/kanban";

@@ -2,13 +2,12 @@
   @include flex_separation;
   height: 96px;
   width: 100%;
-  // position: fixed;
   h1 {
     @include heading_xl;
-
     margin: 0px 20px;
   }
 }
+
 .header_container--darkmode {
   background-color: $dark-grey;
   border-bottom: solid 2px $line_dark;
@@ -16,6 +15,7 @@
     color: $white;
   }
 }
+
 .header_container--lightmode {
   background-color: $white;
   border-bottom: solid 2px $line_light;
@@ -26,8 +26,11 @@
 
 .header_btnSection {
   display: flex;
+  align-items: center;
+  gap: 8px;
   position: sticky;
   right: 0px;
+  padding-right: 16px;
 }
 
 .header_taskAdder {
@@ -38,11 +41,13 @@
   height: 48px;
   flex-shrink: 0;
   border-radius: 25px;
+
   &:hover {
     background-color: $light_purple;
   }
 }
-.header_taskAdder--enabled {
+
+.header_taskAdder--disabled {
   pointer-events: none;
   opacity: 0.5;
 }
@@ -59,13 +64,14 @@
   display: flex;
   flex-direction: column;
   padding: 10px;
-
   border-radius: 8px;
   max-width: 192px;
   width: 100%;
   box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
   -webkit-box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
   -moz-box-shadow: 2px 2px 31px -3px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+
   button {
     padding: 10px 20px;
     text-align: left;
@@ -74,9 +80,59 @@
 
 .optin_btn_windows--darkmode {
   background-color: $very_dark_grey;
-
 }
+
 .optin_btn_windows--lightmode {
   background-color: $white;
+}
 
+// ===========================
+// LOGOUT BUTTON
+// ===========================
+
+.header_logout_btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: solid 1px transparent;
+  @include heading_m;
+  flex-shrink: 0;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+}
+
+.header_logout_btn--darkmode {
+  color: $medium_grey;
+  background-color: transparent;
+
+  &:hover {
+    color: $red;
+    border-color: rgba($red, 0.4);
+    background-color: rgba($red, 0.08);
+  }
+}
+
+.header_logout_btn--lightmode {
+  color: $medium_grey;
+  background-color: transparent;
+
+  &:hover {
+    color: $red;
+    border-color: rgba($red, 0.4);
+    background-color: rgba($red, 0.08);
+  }
 }

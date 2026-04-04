@@ -22,7 +22,6 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
     setIsLoading(true);
 
     try {
-      // columns = tableau de strings (noms)
       const columnNames = columns.map((c) => c.name.trim()).filter(Boolean);
 
       const result = await createBoard({
@@ -30,8 +29,9 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
         columns: columnNames,
       });
 
-      // result.board = id du nouveau board
-      setSelectedBoardId(result.board);
+      // Le back retourne { message, board: boardObject, boardId: number }
+      setSelectedBoardId(result.boardId);
+      setAddBoardModalIsOpen(false);
 
       // Recharge le loader pour mettre à jour la sidebar
       navigate(0);
@@ -52,9 +52,9 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
   };
 
   const setColumnName = (e, index) => {
-    const newColumns = [...columns];
-    newColumns[index] = { name: e.target.value };
-    setColumns(newColumns);
+    const updated = [...columns];
+    updated[index] = { name: e.target.value };
+    setColumns(updated);
   };
 
   return (

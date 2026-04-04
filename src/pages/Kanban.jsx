@@ -14,13 +14,16 @@ import AddTask from "../components/modal/tasks/AddTask";
 import DeleteTask from "../components/modal/tasks/DeleteTask";
 import TaskEditor from "../components/modal/tasks/TaskEditor";
 import TaskDetailsModal from "../components/modal/Tasks/TaskDetailsModal";
+import MembersModal from "../components/modal/members/MembersModal";
+
+import { useAuth } from "../context/AuthContext";
 
 const Kanban = () => {
   const userBoards = useLoaderData();
   const theme = useSelector((state) => state.theme.currentTheme);
+  const { user } = useAuth();
 
   const kanbanBoardRef = useRef(null);
-
   const handleBoardRefresh = useCallback(() => {
     kanbanBoardRef.current?.fetchBoard();
   }, []);
@@ -34,19 +37,18 @@ const Kanban = () => {
   const [deleteBoardModalIsOpen, setDeleteBoardModalIsOpen] = useState(false);
   const [newColumnModalIsOpen, setNewColumnModalIsOpen] = useState(false);
   const [newTaskModalIsOpen, setNewTaskModalIsOpen] = useState(false);
+  const [membersModalIsOpen, setMembersModalIsOpen] = useState(false);
 
   const [editTaskModal, setEditTaskModal] = useState({
     open: false,
     taskId: null,
     columnId: null,
   });
-
   const [deleteTaskModal, setDeleteTaskModal] = useState({
     open: false,
     taskId: null,
     columnId: null,
   });
-
   const [taskDetailsModal, setTaskDetailsModal] = useState({
     open: false,
     taskId: null,
@@ -56,13 +58,8 @@ const Kanban = () => {
   const currentMembership = userBoards?.find(
     (ub) => ub.board?.id === selectedBoardId,
   );
-
   const isAdmin = currentMembership?.role === "admin";
   const selectedBoardName = currentMembership?.board?.name ?? "";
-
-  // userBoards ne contient pas forcément les colonnes complètes,
-  // donc on évite de dépendre de board.columns ici pour ne pas recréer un bug.
-  const hasBoardSelected = Boolean(selectedBoardId);
 
   return (
     <div className={`main_container main_container--${theme}`}>
@@ -76,11 +73,12 @@ const Kanban = () => {
       <div className="kanban_page_container">
         <Header
           boardName={selectedBoardName}
-          hasColumns={hasBoardSelected}
+          hasColumns={Boolean(selectedBoardId)}
+          isAdmin={isAdmin}
           setNewTaskModalIsOpen={setNewTaskModalIsOpen}
           setEditBoardModalIsOpen={setEditBoardModalIsOpen}
           setDeleteBoardModalIsOpen={setDeleteBoardModalIsOpen}
-          isAdmin={isAdmin}
+          setMembersModalIsOpen={setMembersModalIsOpen}
         />
 
         {selectedBoardId && (
@@ -95,6 +93,8 @@ const Kanban = () => {
           />
         )}
       </div>
+
+      {/* ======= Modals ======= */}
 
       {newBoardModalIsOpen && (
         <AddBoard
@@ -165,6 +165,15 @@ const Kanban = () => {
           setEditTaskModal={setEditTaskModal}
           boardId={selectedBoardId}
           onBoardRefresh={handleBoardRefresh}
+        />
+      )}
+
+      {membersModalIsOpen && selectedBoardId && (
+        <MembersModal
+          setMembersModalIsOpen={setMembersModalIsOpen}
+          boardId={selectedBoardId}
+          currentUserId={user?.user?.id}
+          isAdmin={isAdmin}
         />
       )}
     </div>
