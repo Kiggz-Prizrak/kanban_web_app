@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import MoonIcon from "../assets/icons/MoonIcon";
 import SunIcon from "../assets/icons/SunIcon";
 import { useDispatch } from "react-redux";
-import { editTheme } from "../store/themeslice";
+import { editTheme } from "../store/themeSlice";
 
 const DarkmodeButton = () => {
   const dispatch = useDispatch();

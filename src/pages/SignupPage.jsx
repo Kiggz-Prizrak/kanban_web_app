@@ -2,12 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { signup } from "../api/users";
+import { useSelector } from "react-redux";
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState("");
+  const theme = useSelector((state) => state.theme.currentTheme);
 
   const {
     register,
@@ -58,8 +60,8 @@ const SignupPage = () => {
   };
 
   return (
-    <main className="auth_page auth_page--darkmode">
-      <section className="auth_card modal_container modal_container--darkmode">
+    <main className={` main_container main_container--${theme}`}>
+      <section className=" auth_container auth_card modal_container modal_container--darkmode">
         <div className="auth_card_content">
           <div className="auth_header">
             <h1>Créer un compte</h1>

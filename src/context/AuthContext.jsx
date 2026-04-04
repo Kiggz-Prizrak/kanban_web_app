@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import {
   getMe,
   login as loginRequest,
@@ -14,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  const refreshAuth = async () => {
+  const refreshAuth = useCallback(async () => {
     try {
       const me = await getMe();
       setUser(me);
@@ -25,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       return null;
     }
-  };
+  }, []);
 
   useEffect(() => {
     const bootstrapAuth = async () => {
@@ -35,35 +42,38 @@ export const AuthProvider = ({ children }) => {
     };
 
     bootstrapAuth();
-  }, []);
+  }, [refreshAuth]);
 
-  const login = async (credentials) => {
+  const login = useCallback(
+    async (credentials) => {
+      setIsLoading(true);
+      try {
+        await loginRequest(credentials);
+        const me = await refreshAuth();
+        return me;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [refreshAuth],
+  );
+
+  const signup = useCallback(
+    async (payload) => {
+      setIsLoading(true);
+      try {
+        await signupRequest(payload);
+        const me = await refreshAuth();
+        return me;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [refreshAuth],
+  );
+
+  const logout = useCallback(async () => {
     setIsLoading(true);
-
-    try {
-      await loginRequest(credentials);
-      const me = await refreshAuth();
-      return me;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signup = async (payload) => {
-    setIsLoading(true);
-
-    try {
-      await signupRequest(payload);
-      const me = await refreshAuth();
-      return me;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    setIsLoading(true);
-
     try {
       await logoutRequest();
     } finally {
@@ -71,7 +81,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -84,7 +94,16 @@ export const AuthProvider = ({ children }) => {
       signup,
       logout,
     }),
-    [user, isAuthenticated, isBootstrapping, isLoading],
+    [
+      user,
+      isAuthenticated,
+      isBootstrapping,
+      isLoading,
+      refreshAuth,
+      login,
+      signup,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

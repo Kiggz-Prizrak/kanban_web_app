@@ -19,6 +19,7 @@ const KanbanBoard = forwardRef(function KanbanBoard(
     setEditTaskModal,
     setDeleteTaskModal,
     setTaskDetailsModal,
+    onColumnsChange,
   },
   ref,
 ) {
@@ -37,15 +38,25 @@ const KanbanBoard = forwardRef(function KanbanBoard(
     try {
       const data = await getBoardById(boardId);
       setBoard(data);
+      onColumnsChange?.(data.columns?.length ?? 0);
     } catch (err) {
       setError(err.message || "Erreur lors du chargement du board");
     } finally {
       setIsLoading(false);
     }
-  }, [boardId]);
+  }, [boardId, onColumnsChange]);
 
-  // Expose fetchBoard au parent via ref
-  useImperativeHandle(ref, () => ({ fetchBoard }), [fetchBoard]);
+  // Expose fetchBoard et hasColumns au parent via ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      fetchBoard,
+      get hasColumns() {
+        return (board?.columns?.length ?? 0) > 0;
+      },
+    }),
+    [fetchBoard, board],
+  );
 
   useEffect(() => {
     fetchBoard();

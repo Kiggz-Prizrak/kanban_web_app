@@ -24,8 +24,19 @@ const Kanban = () => {
   const { user } = useAuth();
 
   const kanbanBoardRef = useRef(null);
-  const handleBoardRefresh = useCallback(() => {
-    kanbanBoardRef.current?.fetchBoard();
+
+  // hasColumns est mis à jour par KanbanBoard après chaque fetch
+  const [hasColumns, setHasColumns] = useState(false);
+
+  const handleBoardRefresh = useCallback(async () => {
+    await kanbanBoardRef.current?.fetchBoard();
+    // Après le refresh, on relit hasColumns depuis la ref
+    setHasColumns(kanbanBoardRef.current?.hasColumns ?? false);
+  }, []);
+
+  // Callback passé à KanbanBoard pour qu'il notifie Kanban quand les colonnes changent
+  const handleColumnsChange = useCallback((count) => {
+    setHasColumns(count > 0);
   }, []);
 
   const [selectedBoardId, setSelectedBoardId] = useState(
@@ -73,7 +84,7 @@ const Kanban = () => {
       <div className="kanban_page_container">
         <Header
           boardName={selectedBoardName}
-          hasColumns={Boolean(selectedBoardId)}
+          hasColumns={hasColumns}
           isAdmin={isAdmin}
           setNewTaskModalIsOpen={setNewTaskModalIsOpen}
           setEditBoardModalIsOpen={setEditBoardModalIsOpen}
@@ -90,6 +101,7 @@ const Kanban = () => {
             setEditTaskModal={setEditTaskModal}
             setDeleteTaskModal={setDeleteTaskModal}
             setTaskDetailsModal={setTaskDetailsModal}
+            onColumnsChange={handleColumnsChange}
           />
         )}
       </div>
