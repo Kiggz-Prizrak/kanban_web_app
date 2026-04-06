@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { signup } from "../api/users";
 import { useSelector } from "react-redux";
+import Logo from "../assets/Logo";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -62,6 +63,9 @@ const SignupPage = () => {
   return (
     <main className={` main_container main_container--${theme}`}>
       <section className=" auth_container auth_card modal_container modal_container--darkmode">
+        <span className="auth_logo_head">
+          <Logo color={theme === "darkmode" ? "white" : "black"} />
+        </span>
         <div className="auth_card_content">
           <div className="auth_header">
             <h1>Créer un compte</h1>
