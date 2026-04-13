@@ -1,17 +1,14 @@
 .auth_container {
   padding: 25px;
   color: white;
-  
-  .auth_logo_head {
 
+  .auth_logo_head {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 70px;
-    
   }
-
 }
 .auth_avatar_preview {
   // overflow: hidden;
@@ -24,5 +21,97 @@
     height: 100%;
     border-radius: 15px;
   }
+}
 
+// ===========================
+// BOUTON GUEST / SCRATCH PAD
+// ===========================
+
+.auth_guest_divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 8px;
+  color: $medium_grey;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: $line_dark;
+  }
+
+  span {
+    @include body_m;
+    flex-shrink: 0;
+  }
+}
+
+.auth_guest_btn {
+  @include body_l;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  border-radius: 20px;
+  border: 1px solid $line_dark;
+  color: $medium_grey;
+  background: transparent;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+  text-decoration: none;
+  margin-bottom: 8px;
+
+  svg {
+    flex-shrink: 0;
+    transition: stroke 0.2s ease;
+  }
+
+  &:hover {
+    border-color: $main_purple;
+    color: $white;
+    background-color: rgba($main_purple, 0.1);
+
+    svg {
+      stroke: $main_purple;
+    }
+  }
+}
+
+// ===========================
+// BADGE LOCAL DANS LE HEADER
+// ===========================
+
+.header_local_badge {
+  @include body_m;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $medium_grey;
+  border: 1px solid $line_dark;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+// ===========================
+// LABEL LOCAL DANS LA SIDEBAR
+// ===========================
+
+.sidebar_local_label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

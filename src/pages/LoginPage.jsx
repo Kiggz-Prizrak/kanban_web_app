@@ -1,12 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useRevalidator } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { login } from "../api/users";
 import { useSelector } from "react-redux";
+import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/Logo";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
+  const { login } = useAuth();
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const theme = useSelector((state) => state.theme.currentTheme);
@@ -16,19 +18,19 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (data) => {
     setServerError("");
     setLoading(true);
-
     try {
-      await login(data);
-      navigate("/");
+      // login() appelle loginRequest + refreshAuth — user est settée avant qu'on continue
+      await login({ email: data.email, password: data.password });
+      // revalidate force le loader kanbanLoader à se ré-exécuter avec la session active
+      // navigate attend que la revalidation soit terminée grâce au await implicite de React Router
+      revalidate();
+      navigate("/", { replace: true });
     } catch (err) {
       setServerError(err.message || "Impossible de se connecter.");
     } finally {
@@ -38,7 +40,7 @@ const LoginPage = () => {
 
   return (
     <main className={`main_container main_container--${theme}`}>
-      <section className=" auth_container auth_card modal_container modal_container--darkmode">
+      <section className="auth_container auth_card modal_container modal_container--darkmode">
         <span className="auth_logo_head">
           <Logo color={theme === "darkmode" ? "white" : "black"} />
         </span>
@@ -55,9 +57,7 @@ const LoginPage = () => {
               type="email"
               className="form_input_text form_input_text--darkmode"
               placeholder="exemple@mail.com"
-              {...register("email", {
-                required: "L’email est requis.",
-              })}
+              {...register("email", { required: "L'email est requis." })}
             />
             {errors.email && (
               <p className="errorMessage">{errors.email.message}</p>
@@ -94,6 +94,25 @@ const LoginPage = () => {
               Créer un compte
             </Link>
           </p>
+
+          <div className="auth_guest_divider">
+            <span>ou</span>
+          </div>
+          <Link to="/" className="auth_guest_btn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+              <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
+            </svg>
+            Use local scratch pad
+          </Link>
         </div>
       </section>
     </main>

@@ -5,16 +5,22 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext } from "react-beautiful-dnd";
 
 import BoardColumn from "./BoardColumn";
 import { getBoardById, moveTask } from "../api/boards";
+import { dragAndDropTask } from "../store/localKanbanSlice";
 
 const KanbanBoard = forwardRef(function KanbanBoard(
   {
+    // API props
     boardId,
+    // Local props
+    selectedKanban,
+    // Commun
     isAdmin,
+    isLocal = false,
     setNewColumnModalIsOpen,
     setEditTaskModal,
     setDeleteTaskModal,
@@ -24,44 +30,63 @@ const KanbanBoard = forwardRef(function KanbanBoard(
   ref,
 ) {
   const theme = useSelector((state) => state.theme.currentTheme);
+  const dispatch = useDispatch();
 
-  const [board, setBoard] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // ---- Données locales depuis Redux ----
+  const localKanban = useSelector((state) =>
+    isLocal ? state.localKanban.kanbans[selectedKanban] : null,
+  );
+
+  // ---- Données API ----
+  const [apiBoard, setApiBoard] = useState(null);
+  const [isLoading, setIsLoading] = useState(!isLocal);
   const [error, setError] = useState(null);
 
+  // Le board affiché — local ou API
+  const board = isLocal ? localKanban : apiBoard;
+
+  // ---- Fetch API ----
   const fetchBoard = useCallback(async () => {
-    if (!boardId) return;
+    if (isLocal || !boardId) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       const data = await getBoardById(boardId);
-      setBoard(data);
+      setApiBoard(data);
       onColumnsChange?.(data.columns?.length ?? 0);
     } catch (err) {
       setError(err.message || "Erreur lors du chargement du board");
     } finally {
       setIsLoading(false);
     }
-  }, [boardId, onColumnsChange]);
+  }, [boardId, isLocal, onColumnsChange]);
 
-  // Expose fetchBoard et hasColumns au parent via ref
+  // Expose fetchBoard et hasColumns au parent via ref (API uniquement)
   useImperativeHandle(
     ref,
     () => ({
       fetchBoard,
       get hasColumns() {
-        return (board?.columns?.length ?? 0) > 0;
+        return (apiBoard?.columns?.length ?? 0) > 0;
       },
     }),
-    [fetchBoard, board],
+    [fetchBoard, apiBoard],
   );
 
   useEffect(() => {
     fetchBoard();
   }, [fetchBoard]);
 
+  // Notifie le parent quand les colonnes locales changent
+  useEffect(() => {
+    if (isLocal) {
+      onColumnsChange?.(localKanban?.columns?.length ?? 0);
+    }
+  }, [isLocal, localKanban?.columns?.length, onColumnsChange]);
+
+  // ---- Drag & drop ----
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
@@ -72,52 +97,70 @@ const KanbanBoard = forwardRef(function KanbanBoard(
     )
       return;
 
-    const sourceColumnId = Number(source.droppableId);
-    const destinationColumnId = Number(destination.droppableId);
-    const taskId = Number(draggableId);
-    const destinationIndex = destination.index;
+    if (isLocal) {
+      // Local — dispatch Redux directement
+      dispatch(dragAndDropTask({ ...result, datas: localKanban }));
+    } else {
+      // API — mise à jour optimiste + appel serveur
+      const sourceColumnId = Number(source.droppableId);
+      const destinationColumnId = Number(destination.droppableId);
+      const taskId = Number(draggableId);
+      const destinationIndex = destination.index;
 
-    // Mise à jour optimiste
-    setBoard((prev) => {
-      if (!prev) return prev;
-
-      const columns = prev.columns.map((col) => ({
-        ...col,
-        tasks: col.tasks.map((task) => ({ ...task })),
-      }));
-
-      const sourceCol = columns.find((c) => c.id === sourceColumnId);
-      const destCol = columns.find((c) => c.id === destinationColumnId);
-
-      if (!sourceCol || !destCol) return prev;
-
-      const [movedTask] = sourceCol.tasks.splice(source.index, 1);
-
-      if (!movedTask) return prev;
-
-      const updatedTask =
-        sourceColumnId === destinationColumnId
-          ? movedTask
-          : { ...movedTask, columnId: destinationColumnId };
-
-      destCol.tasks.splice(destinationIndex, 0, updatedTask);
-
-      return { ...prev, columns };
-    });
-
-    try {
-      await moveTask(boardId, taskId, {
-        sourceColumnId,
-        destinationColumnId,
-        destinationIndex,
+      setApiBoard((prev) => {
+        if (!prev) return prev;
+        const columns = prev.columns.map((col) => ({
+          ...col,
+          tasks: col.tasks.map((task) => ({ ...task })),
+        }));
+        const sourceCol = columns.find((c) => c.id === sourceColumnId);
+        const destCol = columns.find((c) => c.id === destinationColumnId);
+        if (!sourceCol || !destCol) return prev;
+        const [movedTask] = sourceCol.tasks.splice(source.index, 1);
+        if (!movedTask) return prev;
+        destCol.tasks.splice(
+          destinationIndex,
+          0,
+          sourceColumnId === destinationColumnId
+            ? movedTask
+            : { ...movedTask, columnId: destinationColumnId },
+        );
+        return { ...prev, columns };
       });
-    } catch (err) {
-      console.error("moveTask failed:", err);
-      fetchBoard();
+
+      try {
+        await moveTask(boardId, taskId, {
+          sourceColumnId,
+          destinationColumnId,
+          destinationIndex,
+        });
+      } catch (err) {
+        console.error("moveTask failed:", err);
+        fetchBoard();
+      }
     }
   };
 
-  if (isLoading) {
+  // ---- Normalisation colonnes locales ----
+  // Le back retourne substasks[].title + isCompleted
+  // Le local stocke subtasks[].name + isChecked
+  // BoardColumn/TaskCard s'attend au format back — on normalise
+  const normalizedColumns = isLocal
+    ? (localKanban?.columns ?? []).map((col) => ({
+        ...col,
+        tasks: col.tasks.map((task) => ({
+          ...task,
+          substasks: (task.subtasks ?? []).map((s) => ({
+            id: s.id,
+            title: s.name,
+            isCompleted: s.isChecked ?? false,
+          })),
+        })),
+      }))
+    : (board?.columns ?? []);
+
+  // ---- Rendu ----
+  if (!isLocal && isLoading) {
     return (
       <div className="board_container">
         <p className="board_loading">Chargement...</p>
@@ -125,7 +168,7 @@ const KanbanBoard = forwardRef(function KanbanBoard(
     );
   }
 
-  if (error) {
+  if (!isLocal && error) {
     return (
       <div className="board_container">
         <p className="board_error">{error}</p>
@@ -140,10 +183,10 @@ const KanbanBoard = forwardRef(function KanbanBoard(
 
   return (
     <div className="board_container">
-      {board.columns.length ? (
+      {normalizedColumns.length ? (
         <>
           <DragDropContext onDragEnd={onDragEnd}>
-            {board.columns.map((column, i) => (
+            {normalizedColumns.map((column, i) => (
               <BoardColumn
                 key={column.id}
                 column={column}

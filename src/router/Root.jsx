@@ -13,15 +13,10 @@ const Root = () => {
 
   useEffect(() => {
     if (isBootstrapping) return;
-
-    // Redirige les connectés qui tentent d'accéder à /login ou /signup
     if (isAuthenticated && isPublicRoute) {
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, isBootstrapping, isPublicRoute, navigate]);
-
-  // Pendant le bootstrap on n'affiche rien — évite le flash de contenu
-  if (isBootstrapping) return null;
 
   return <Outlet />;
 };

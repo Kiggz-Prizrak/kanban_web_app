@@ -1,37 +1,52 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import { deleteBoard } from "../../../api/boards";
+import { deleteBoard as deleteBoardApi } from "../../../api/boards";
+import { deleteBoard as deleteBoardLocal } from "../../../store/localKanbanSlice";
 
 const DeleteBoard = ({
   setDeleteBoardModalIsOpen,
+  // API props
   boardId,
   setSelectedBoardId,
   userBoards,
+  // Local props
+  selectedKanban,
+  onDeleted,
+  isLocal = false,
   theme,
 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const boardName =
-    userBoards?.find((ub) => ub.board?.id === boardId)?.board?.name ?? "";
+  // Nom du board selon le mode
+  const localKanban = useSelector((state) =>
+    isLocal ? state.localKanban.kanbans[selectedKanban] : null,
+  );
+  const boardName = isLocal
+    ? (localKanban?.board ?? "")
+    : (userBoards?.find((ub) => ub.board?.id === boardId)?.board?.name ?? "");
 
   const handleDelete = async () => {
     setIsLoading(true);
     setServerError("");
 
     try {
-      await deleteBoard(boardId);
-
-      // Sélectionne le premier board restant
-      const remaining = userBoards.filter((ub) => ub.board?.id !== boardId);
-      setSelectedBoardId(remaining[0]?.board?.id ?? null);
-
-      setDeleteBoardModalIsOpen(false);
-
-      // Recharge le loader pour mettre à jour la sidebar
-      navigate(0);
+      if (isLocal) {
+        dispatch(deleteBoardLocal(selectedKanban));
+        setDeleteBoardModalIsOpen(false);
+        onDeleted?.();
+      } else {
+        await deleteBoardApi(boardId);
+        const remaining = userBoards.filter((ub) => ub.board?.id !== boardId);
+        setSelectedBoardId?.(remaining[0]?.board?.id ?? null);
+        setDeleteBoardModalIsOpen(false);
+        navigate(0);
+      }
     } catch (err) {
       setServerError(err.message || "Erreur lors de la suppression");
     } finally {
@@ -47,9 +62,8 @@ const DeleteBoard = ({
             Delete this board?
           </h2>
           <p>
-            Are you sure you want to delete the &quot;{boardName}&quot; board?
-            This action will remove all columns and tasks and cannot be
-            reversed.
+            Are you sure you want to delete &quot;{boardName}&quot;? This action
+            will remove all columns and tasks and cannot be reversed.
           </p>
 
           {serverError && <p className="errorMessage">{serverError}</p>}

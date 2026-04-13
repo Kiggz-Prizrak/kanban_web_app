@@ -1,54 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { getBoardById, addTask } from "../../../api/boards";
+import { getBoardById, addTask as addTaskApi } from "../../../api/boards";
+import { addNewTask, generateLocalId } from "../../../store/localKanbanSlice";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 import ArrowIcon from "../../../assets/icons/ArrowIcon";
 
-const AddTask = ({ setNewTaskModalIsOpen, boardId, onBoardRefresh, theme }) => {
+const AddTask = ({
+  setNewTaskModalIsOpen,
+  // API props
+  boardId,
+  onBoardRefresh,
+  // Local props
+  selectedKanban,
+  isLocal = false,
+  theme,
+}) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const dispatch = useDispatch();
+  const localKanban = useSelector((state) =>
+    isLocal ? state.localKanban.kanbans[selectedKanban] : null,
+  );
 
+  // Colonnes — API : chargées depuis le serveur / Local : depuis Redux
   const [columns, setColumns] = useState([]);
-  const [selectedColumnId, setSelectedColumnId] = useState(null);
+  const [selectedColumnId, setSelectedColumnId] = useState(null); // API
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState(0); // Local
   const [dropdownIsOpen, setDropdownIsOpen] = useState(false);
   const [subtasks, setSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  // Charge les colonnes du board pour le sélecteur de statut
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getBoardById(boardId);
-        setColumns(data.columns);
-        setSelectedColumnId(data.columns[0]?.id ?? null);
-      } catch {
-        setServerError("Impossible de charger les colonnes");
-      }
-    };
-    load();
-  }, [boardId]);
+    if (isLocal) {
+      setColumns(localKanban?.columns ?? []);
+    } else {
+      const load = async () => {
+        try {
+          const data = await getBoardById(boardId);
+          setColumns(data.columns);
+          setSelectedColumnId(data.columns[0]?.id ?? null);
+        } catch {
+          setServerError("Impossible de charger les colonnes");
+        }
+      };
+      load();
+    }
+  }, [boardId, isLocal, localKanban]);
 
   const onSubmit = async (data) => {
     setServerError("");
     setIsLoading(true);
 
     try {
-      const subtaskTitles = subtasks.map((s) => s.title.trim()).filter(Boolean);
-
-      await addTask(boardId, selectedColumnId, {
-        title: data.title.trim(),
-        description: data.description.trim(),
-        subtasks: subtaskTitles,
-      });
-
-      setNewTaskModalIsOpen(false);
-      onBoardRefresh?.();
+      if (isLocal) {
+        dispatch(
+          addNewTask({
+            selectedKanban,
+            column: selectedColumnIndex,
+            newTask: {
+              id: generateLocalId(),
+              title: data.title.trim(),
+              description: data.description.trim(),
+              status: columns[selectedColumnIndex]?.name ?? "",
+              subtasks: subtasks
+                .filter((s) => s.name.trim())
+                .map((s) => ({ ...s, id: s.id ?? generateLocalId() })),
+            },
+          }),
+        );
+        setNewTaskModalIsOpen(false);
+      } else {
+        await addTaskApi(boardId, selectedColumnId, {
+          title: data.title.trim(),
+          description: data.description.trim(),
+          subtasks: subtasks.map((s) => s.title.trim()).filter(Boolean),
+        });
+        setNewTaskModalIsOpen(false);
+        onBoardRefresh?.();
+      }
     } catch (err) {
       setServerError(err.message || "Erreur lors de la création de la tâche");
     } finally {
@@ -58,20 +93,34 @@ const AddTask = ({ setNewTaskModalIsOpen, boardId, onBoardRefresh, theme }) => {
 
   const addSubtask = (e) => {
     e.preventDefault();
-    setSubtasks((prev) => [...prev, { title: "" }]);
+    if (isLocal) {
+      setSubtasks((prev) => [
+        ...prev,
+        { name: "", id: generateLocalId(), isChecked: false },
+      ]);
+    } else {
+      setSubtasks((prev) => [...prev, { title: "" }]);
+    }
   };
 
-  const removeSubtask = (index) => {
+  const removeSubtask = (index) =>
     setSubtasks((prev) => prev.filter((_, i) => i !== index));
-  };
 
-  const setSubtaskTitle = (e, index) => {
+  const setSubtaskValue = (e, index) => {
     const updated = [...subtasks];
-    updated[index] = { title: e.target.value };
+    updated[index] = isLocal
+      ? { ...updated[index], name: e.target.value }
+      : { title: e.target.value };
     setSubtasks(updated);
   };
 
-  const selectedColumn = columns.find((c) => c.id === selectedColumnId);
+  const selectedColumn = isLocal
+    ? columns[selectedColumnIndex]
+    : columns.find((c) => c.id === selectedColumnId);
+
+  const otherColumns = isLocal
+    ? columns.filter((_, i) => i !== selectedColumnIndex)
+    : columns.filter((c) => c.id !== selectedColumnId);
 
   return (
     <div className="modal_background">
@@ -125,9 +174,8 @@ const AddTask = ({ setNewTaskModalIsOpen, boardId, onBoardRefresh, theme }) => {
                 <input
                   className={`form_input_text form_input_text--${theme}`}
                   type="text"
-                  placeholder="Ex: Create wireframe"
-                  value={sub.title}
-                  onChange={(e) => setSubtaskTitle(e, i)}
+                  value={isLocal ? sub.name : sub.title}
+                  onChange={(e) => setSubtaskValue(e, i)}
                 />
                 <button type="button" onClick={() => removeSubtask(i)}>
                   <CloseIcon />
@@ -160,22 +208,22 @@ const AddTask = ({ setNewTaskModalIsOpen, boardId, onBoardRefresh, theme }) => {
             </div>
             {dropdownIsOpen && (
               <ul className="form_dropdown_list">
-                {columns
-                  .filter((c) => c.id !== selectedColumnId)
-                  .map((col) => (
-                    <li key={col.id}>
-                      <button
-                        type="button"
-                        className="form_button_submit"
-                        onClick={() => {
-                          setSelectedColumnId(col.id);
-                          setDropdownIsOpen(false);
-                        }}
-                      >
-                        {col.name}
-                      </button>
-                    </li>
-                  ))}
+                {otherColumns.map((col, i) => (
+                  <li key={col.id ?? i}>
+                    <button
+                      type="button"
+                      className="form_button_submit"
+                      onClick={() => {
+                        if (isLocal)
+                          setSelectedColumnIndex(columns.indexOf(col));
+                        else setSelectedColumnId(col.id);
+                        setDropdownIsOpen(false);
+                      }}
+                    >
+                      {col.name}
+                    </button>
+                  </li>
+                ))}
               </ul>
             )}
           </div>
@@ -185,7 +233,7 @@ const AddTask = ({ setNewTaskModalIsOpen, boardId, onBoardRefresh, theme }) => {
           <button
             type="submit"
             className="form_button_submit"
-            disabled={isLoading || !selectedColumnId}
+            disabled={isLoading || (!isLocal && !selectedColumnId)}
           >
             {isLoading ? "Création..." : "Create Task"}
           </button>

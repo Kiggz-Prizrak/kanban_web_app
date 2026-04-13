@@ -1,5 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:7007/api";
 
+// Délai max pour les requêtes auth — évite de bloquer l'UI si le back est mort
+const FETCH_TIMEOUT_MS = 5000;
+
+const fetchWithTimeout = (url, options = {}, timeout = FETCH_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(id),
+  );
+};
+
 const handleResponse = async (response) => {
   let data = null;
 
@@ -22,44 +33,35 @@ const handleResponse = async (response) => {
 };
 
 export const login = async ({ email, password }) => {
-  const response = await fetch(`${API_URL}/users/login`, {
+  const response = await fetchWithTimeout(`${API_URL}/users/login`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-
   return handleResponse(response);
 };
 
 export const signup = async ({ username, email, password, avatar }) => {
   const formData = new FormData();
-
   formData.append("username", username);
   formData.append("email", email);
   formData.append("password", password);
+  if (avatar) formData.append("avatar", avatar);
 
-  if (avatar) {
-    formData.append("avatar", avatar);
-  }
-
-  const response = await fetch(`${API_URL}/users/signup`, {
+  const response = await fetchWithTimeout(`${API_URL}/users/signup`, {
     method: "POST",
     credentials: "include",
     body: formData,
   });
-
   return handleResponse(response);
 };
 
 export const logout = async () => {
-  const response = await fetch(`${API_URL}/users/logout`, {
+  const response = await fetchWithTimeout(`${API_URL}/users/logout`, {
     method: "POST",
     credentials: "include",
   });
-
   return handleResponse(response);
 };
 
@@ -67,26 +69,21 @@ export const getAffiliatedUserBoards = async () => {
   const response = await fetch(`${API_URL}/users/boards-member`, {
     method: "GET",
     credentials: "include",
-    headers: {
-      Accept: "application/json",
-    },
+    headers: { Accept: "application/json" },
   });
-
   return handleResponse(response);
 };
 
 export const getMe = async () => {
-  console.log("in")
-  const response = await fetch(`${API_URL}/users/me`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
+  const response = await fetchWithTimeout(
+    `${API_URL}/users/me`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
     },
-  });
-
-  console.log(response);
-
+    3000,
+  );
   return handleResponse(response);
 };
 

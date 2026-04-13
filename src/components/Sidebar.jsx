@@ -6,14 +6,38 @@ import Logo from "../assets/Logo";
 import EyeIcon from "../assets/icons/EyeIcon";
 import DarkmodeButton from "./DarkmodeButton";
 
+// Icône petit disque dur — indique un board local
+const LocalIcon = ({ color = "#828FA3" }) => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0 }}
+    title="Board local"
+  >
+    <ellipse cx="12" cy="5" rx="9" ry="3" />
+    <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+    <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
+  </svg>
+);
+
 const Sidebar = ({
-  selectedBoardId,
-  setSelectedBoardId,
+  selectedBoardKey, // "api__{id}" | "local__{localId}"
+  setSelectedBoardKey,
   setNewBoardModalIsOpen,
-  userBoards,
+  setNewLocalBoardModalIsOpen,
+  userBoards, // boards API [{ id, role, board: { id, name } }]
+  localKanbans, // boards locaux [{ localId, board, columns }]
 }) => {
   const theme = useSelector((state) => state.theme.currentTheme);
   const [sidebarIsOpen, setSidebarIsOpen] = useState(true);
+
+  const totalCount = (userBoards?.length ?? 0) + (localKanbans?.length ?? 0);
 
   return (
     <>
@@ -28,35 +52,74 @@ const Sidebar = ({
 
         <div className={`sidebar_content sidebar_content--${theme}`}>
           <div>
-            <h2>ALL BOARDS ({userBoards?.length ?? 0})</h2>
+            <h2>ALL BOARDS ({totalCount})</h2>
             <ul className="sidebar_menu">
-              {userBoards?.map((ub) => (
-                <li key={ub.board.id}>
-                  <button
-                    className={
-                      selectedBoardId === ub.board.id
-                        ? "sidebar_kanbanLink_active"
-                        : "sidebar_kanbanLink"
-                    }
-                    onClick={() => setSelectedBoardId(ub.board.id)}
-                  >
-                    <BoardIcon
-                      color={
-                        selectedBoardId === ub.board.id ? "#FFF" : "#828FA3"
+              {/* ---- Boards API ---- */}
+              {userBoards?.map((ub) => {
+                const key = `api__${ub.board.id}`;
+                const isActive = selectedBoardKey === key;
+                return (
+                  <li key={key}>
+                    <button
+                      className={
+                        isActive
+                          ? "sidebar_kanbanLink_active"
+                          : "sidebar_kanbanLink"
                       }
-                    />
-                    <p>{ub.board.name}</p>
+                      onClick={() => setSelectedBoardKey(key)}
+                    >
+                      <BoardIcon color={isActive ? "#FFF" : "#828FA3"} />
+                      <p>{ub.board.name}</p>
+                    </button>
+                  </li>
+                );
+              })}
+
+              {/* ---- Boards locaux ---- */}
+              {localKanbans?.map((kb) => {
+                const key = `local__${kb.localId}`;
+                const isActive = selectedBoardKey === key;
+                return (
+                  <li key={key}>
+                    <button
+                      className={
+                        isActive
+                          ? "sidebar_kanbanLink_active"
+                          : "sidebar_kanbanLink"
+                      }
+                      onClick={() => setSelectedBoardKey(key)}
+                    >
+                      <BoardIcon color={isActive ? "#FFF" : "#828FA3"} />
+                      <p className="sidebar_local_label">
+                        {kb.board}
+                        <LocalIcon color={isActive ? "#FFF" : "#828FA3"} />
+                      </p>
+                    </button>
+                  </li>
+                );
+              })}
+
+              {/* ---- Créer board API (si connecté) ---- */}
+              {userBoards && (
+                <li>
+                  <button
+                    className="sidebar_boardCreator_btn"
+                    onClick={() => setNewBoardModalIsOpen(true)}
+                  >
+                    <BoardIcon color="#635FC7" />
+                    <p>+ New Board</p>
                   </button>
                 </li>
-              ))}
+              )}
 
+              {/* ---- Créer board local (toujours visible) ---- */}
               <li>
                 <button
                   className="sidebar_boardCreator_btn"
-                  onClick={() => setNewBoardModalIsOpen(true)}
+                  onClick={() => setNewLocalBoardModalIsOpen(true)}
                 >
-                  <BoardIcon color="#635FC7" />
-                  <p>+ Create New Board</p>
+                  <LocalIcon color="#635FC7" />
+                  <p style={{ marginLeft: 15 }}>+ New Local Board</p>
                 </button>
               </li>
             </ul>

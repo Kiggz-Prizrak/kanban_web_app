@@ -1,17 +1,26 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import { createBoard } from "../../../api/boards";
+import { addNewBoard, generateLocalId } from "../../../store/localKanbanSlice";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 
-const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
+const AddBoard = ({
+  setAddBoardModalIsOpen,
+  setSelectedBoardId, // API : appelé avec boardId numérique
+  onBoardCreated, // Local : appelé avec localId string
+  isLocal = false,
+  theme,
+}) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [columns, setColumns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,21 +31,37 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
     setIsLoading(true);
 
     try {
-      const columnNames = columns.map((c) => c.name.trim()).filter(Boolean);
-
-      const result = await createBoard({
-        title: data.title,
-        columns: columnNames,
-      });
-
-      // Le back retourne { message, board: boardObject, boardId: number }
-      setSelectedBoardId(result.boardId);
-      setAddBoardModalIsOpen(false);
-
-      // Recharge le loader pour mettre à jour la sidebar
-      navigate(0);
+      if (isLocal) {
+        const localId = generateLocalId();
+        const newColumns = columns
+          .filter((c) => c.name.trim())
+          .map((c, i) => ({
+            name: c.name.trim(),
+            id: generateLocalId(),
+            position: i,
+            tasks: [],
+          }));
+        dispatch(
+          addNewBoard({
+            localId,
+            board: data.title.trim(),
+            columns: newColumns,
+          }),
+        );
+        setAddBoardModalIsOpen(false);
+        onBoardCreated?.(localId);
+      } else {
+        const columnNames = columns.map((c) => c.name.trim()).filter(Boolean);
+        const result = await createBoard({
+          title: data.title,
+          columns: columnNames,
+        });
+        setSelectedBoardId?.(result.boardId);
+        setAddBoardModalIsOpen(false);
+        navigate(0);
+      }
     } catch (err) {
-      setServerError(err.message || "Erreur lors de la création du board");
+      setServerError(err.message || "Erreur lors de la création");
     } finally {
       setIsLoading(false);
     }
@@ -47,9 +72,8 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
     setColumns((prev) => [...prev, { name: "" }]);
   };
 
-  const removeColumn = (index) => {
+  const removeColumn = (index) =>
     setColumns((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const setColumnName = (e, index) => {
     const updated = [...columns];
@@ -62,7 +86,7 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
       <div className={`modal_container modal_container--${theme}`}>
         <form className="modal_form" onSubmit={handleSubmit(onSubmit)}>
           <div className={`form_title form_title--${theme}`}>
-            <h2>Add New Board</h2>
+            <h2>{isLocal ? "New Local Board" : "Add New Board"}</h2>
             <button type="button" onClick={() => setAddBoardModalIsOpen(false)}>
               <CloseIcon />
             </button>
@@ -111,13 +135,16 @@ const AddBoard = ({ setAddBoardModalIsOpen, setSelectedBoardId, theme }) => {
           >
             + Add New Column
           </button>
-
           <button
             type="submit"
             className="form_button_submit"
             disabled={isLoading}
           >
-            {isLoading ? "Création..." : "Create New Board"}
+            {isLoading
+              ? "Création..."
+              : isLocal
+                ? "Create Local Board"
+                : "Create New Board"}
           </button>
         </form>
       </div>

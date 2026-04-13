@@ -15,33 +15,48 @@ import {
 
 const AuthContext = createContext(null);
 
+let resolveBootstrap;
+export const bootstrapPromise = new Promise((resolve) => {
+  resolveBootstrap = resolve;
+});
+
+const BOOTSTRAP_TIMEOUT_MS = 3000;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isAuthenticated = Boolean(user?.id);
 
   const refreshAuth = useCallback(async () => {
     try {
       const me = await getMe();
-      setUser(me);
-      setIsAuthenticated(true);
-      return me;
-    } catch (error) {
+
+      const userData = me?.user ?? me;
+      if (userData?.id) {
+        setUser(userData);
+        return userData;
+      }
       setUser(null);
-      setIsAuthenticated(false);
+      return null;
+    } catch {
+      setUser(null);
       return null;
     }
   }, []);
 
   useEffect(() => {
-    const bootstrapAuth = async () => {
-      setIsBootstrapping(true);
-      await refreshAuth();
+    const timeoutId = setTimeout(() => {
       setIsBootstrapping(false);
-    };
+      resolveBootstrap();
+    }, BOOTSTRAP_TIMEOUT_MS);
 
-    bootstrapAuth();
+    refreshAuth().finally(() => {
+      clearTimeout(timeoutId);
+      setIsBootstrapping(false);
+      resolveBootstrap();
+    });
   }, [refreshAuth]);
 
   const login = useCallback(
@@ -49,8 +64,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       try {
         await loginRequest(credentials);
-        const me = await refreshAuth();
-        return me;
+        return await refreshAuth();
       } finally {
         setIsLoading(false);
       }
@@ -63,8 +77,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       try {
         await signupRequest(payload);
-        const me = await refreshAuth();
-        return me;
+        return await refreshAuth();
       } finally {
         setIsLoading(false);
       }
@@ -76,9 +89,10 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     try {
       await logoutRequest();
+    } catch {
+      // Back mort → on déconnecte quand même localement
     } finally {
       setUser(null);
-      setIsAuthenticated(false);
       setIsLoading(false);
     }
   }, []);
@@ -111,10 +125,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
