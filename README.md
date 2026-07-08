@@ -11,7 +11,7 @@ Application Kanban collaborative en React. Permet de gérer des boards, colonnes
 | React 18 | UI |
 | React Router v6 | Routing + loaders |
 | Redux Toolkit | State global (thème uniquement) |
-| react-beautiful-dnd | Drag & drop des tâches |
+| @hello-pangea/dnd | Drag & drop des tâches |
 | react-hook-form | Formulaires |
 | SCSS | Styles |
 | Vite | Bundler |
@@ -156,7 +156,7 @@ Kanban
 
 ## Drag & drop
 
-Géré par `react-beautiful-dnd` dans `KanbanBoard`. La mise à jour est **optimiste** : l'UI bouge immédiatement, puis `moveTask()` est appelé en arrière-plan. En cas d'erreur API, le board est rechargé depuis le serveur.
+Géré par `@hello-pangea/dnd` dans `KanbanBoard`. La mise à jour est **optimiste** : l'UI bouge immédiatement, puis `moveTask()` est appelé en arrière-plan. En cas d'erreur API, le board est rechargé depuis le serveur.
 
 ```
 onDragEnd

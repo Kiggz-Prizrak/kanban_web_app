@@ -5,7 +5,6 @@
   min-height: 88px;
   flex-shrink: 0;
   @include flex_separation;
-  box-shadow: 2px 2px 7px 1px $very-dark-grey;
 
   button {
     margin-right: 15px;
@@ -14,9 +13,11 @@
 
 .task_item--darkmode {
   background-color: $dark-grey;
+  box-shadow: 2px 2px 7px 1px $very-dark-grey;
 }
 .task_item--lightmode {
   background-color: $white;
+  box-shadow: 2px 2px 7px 1px rgba(54, 78, 126, 0.1);
 }
 
 .task_item_text {

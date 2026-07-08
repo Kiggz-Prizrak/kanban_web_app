@@ -30,7 +30,6 @@ const Sidebar = ({
   selectedBoardKey, // "api__{id}" | "local__{localId}"
   setSelectedBoardKey,
   setNewBoardModalIsOpen,
-  setNewLocalBoardModalIsOpen,
   userBoards, // boards API [{ id, role, board: { id, name } }]
   localKanbans, // boards locaux [{ localId, board, columns }]
 }) => {
@@ -99,27 +98,14 @@ const Sidebar = ({
                 );
               })}
 
-              {/* ---- Créer board API (si connecté) ---- */}
-              {userBoards && (
-                <li>
-                  <button
-                    className="sidebar_boardCreator_btn"
-                    onClick={() => setNewBoardModalIsOpen(true)}
-                  >
-                    <BoardIcon color="#635FC7" />
-                    <p>+ New Board</p>
-                  </button>
-                </li>
-              )}
-
-              {/* ---- Créer board local (toujours visible) ---- */}
+              {/* ---- Créer un board (choix API/local dans la modal) ---- */}
               <li>
                 <button
                   className="sidebar_boardCreator_btn"
-                  onClick={() => setNewLocalBoardModalIsOpen(true)}
+                  onClick={() => setNewBoardModalIsOpen(true)}
                 >
-                  <LocalIcon color="#635FC7" />
-                  <p style={{ marginLeft: 15 }}>+ New Local Board</p>
+                  <BoardIcon color="#635FC7" />
+                  <p>+ New Board</p>
                 </button>
               </li>
             </ul>

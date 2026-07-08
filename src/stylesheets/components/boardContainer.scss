@@ -1,7 +1,25 @@
 .board_container {
   display: flex;
-  height: 87%;
-  margin: 15px;
+  flex: 1;
+  min-height: 0;
+  padding: 15px;
   width: 100%;
+  overflow-x: auto;
 
+  scrollbar-width: thin;
+  scrollbar-color: $main_purple transparent;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $main_purple;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $light_purple;
+  }
 }

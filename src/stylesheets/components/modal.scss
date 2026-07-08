@@ -11,6 +11,25 @@
   border-radius: 6px;
   width: 100%;
   max-width: 480px;
+  max-height: 66vh;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: $main_purple transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $main_purple;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $light_purple;
+  }
 }
 .modal_container--darkmode {
   background-color: $dark-grey;
@@ -112,6 +131,29 @@
     background-color: #ffffff;
     color: #635fc7;
   }
+}
+
+.modal_board_type_toggle {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.modal_board_type_btn {
+  @include body_l;
+  flex: 1;
+  height: 40px;
+  border-radius: 4px;
+  border: solid 1px $line_dark;
+  background: none;
+  color: $medium_grey;
+  cursor: pointer;
+}
+
+.modal_board_type_btn--active {
+  background-color: $main_purple;
+  border-color: $main_purple;
+  color: $white;
 }
 
 .sub_element_btn {

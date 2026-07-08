@@ -11,7 +11,7 @@ const AddBoard = ({
   setAddBoardModalIsOpen,
   setSelectedBoardId, // API : appelé avec boardId numérique
   onBoardCreated, // Local : appelé avec localId string
-  isLocal = false,
+  canCreateApiBoard = true, // false si non connecté — force le mode local
   theme,
 }) => {
   const {
@@ -22,6 +22,7 @@ const AddBoard = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [isLocal, setIsLocal] = useState(!canCreateApiBoard);
   const [columns, setColumns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -91,6 +92,33 @@ const AddBoard = ({
               <CloseIcon />
             </button>
           </div>
+
+          {canCreateApiBoard && (
+            <div className="modal_board_type_toggle">
+              <button
+                type="button"
+                className={
+                  !isLocal
+                    ? "modal_board_type_btn modal_board_type_btn--active"
+                    : "modal_board_type_btn"
+                }
+                onClick={() => setIsLocal(false)}
+              >
+                Board partagé
+              </button>
+              <button
+                type="button"
+                className={
+                  isLocal
+                    ? "modal_board_type_btn modal_board_type_btn--active"
+                    : "modal_board_type_btn"
+                }
+                onClick={() => setIsLocal(true)}
+              >
+                Board local
+              </button>
+            </div>
+          )}
 
           <label htmlFor="title">Board Name</label>
           <input

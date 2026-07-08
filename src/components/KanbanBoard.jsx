@@ -6,7 +6,7 @@ import {
   useImperativeHandle,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 
 import BoardColumn from "./BoardColumn";
 import { getBoardById, moveTask } from "../api/boards";

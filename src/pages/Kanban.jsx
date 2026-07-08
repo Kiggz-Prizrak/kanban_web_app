@@ -58,8 +58,6 @@ const Kanban = () => {
 
   // ---- Modals ----
   const [newBoardModalIsOpen, setNewBoardModalIsOpen] = useState(false);
-  const [newLocalBoardModalIsOpen, setNewLocalBoardModalIsOpen] =
-    useState(false);
   const [editBoardModalIsOpen, setEditBoardModalIsOpen] = useState(false);
   const [deleteBoardModalIsOpen, setDeleteBoardModalIsOpen] = useState(false);
   const [newColumnModalIsOpen, setNewColumnModalIsOpen] = useState(false);
@@ -129,7 +127,6 @@ const Kanban = () => {
         selectedBoardKey={selectedBoardKey}
         setSelectedBoardKey={setSelectedBoardKey}
         setNewBoardModalIsOpen={setNewBoardModalIsOpen}
-        setNewLocalBoardModalIsOpen={setNewLocalBoardModalIsOpen}
         userBoards={userBoards}
         localKanbans={localKanbans}
       />
@@ -194,14 +191,8 @@ const Kanban = () => {
         <AddBoard
           setAddBoardModalIsOpen={setNewBoardModalIsOpen}
           setSelectedBoardId={(id) => setSelectedBoardKey(`api__${id}`)}
-          theme={theme}
-        />
-      )}
-      {newLocalBoardModalIsOpen && (
-        <AddBoard
-          setAddBoardModalIsOpen={setNewLocalBoardModalIsOpen}
           onBoardCreated={handleLocalBoardCreated}
-          isLocal
+          canCreateApiBoard={Boolean(userBoards)}
           theme={theme}
         />
       )}
